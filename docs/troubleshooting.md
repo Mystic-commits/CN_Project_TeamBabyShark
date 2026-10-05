@@ -1,35 +1,84 @@
-# Troubleshooting
+# Systematic Layer-by-Layer Troubleshooting Guide
 
-Walk the stack from the bottom. Do not start at curl.
+## Computer Networks Capstone: Private Network Service Platform — Team Baby Shark
 
-| Layer | Question | Command | Healthy |
-|---|---|---|---|
-| L1/L2 | Wi-Fi up, IP on `en0`? | `ifconfig en0 \| grep -E "status\|inet "` | `status: active`, `10.7.x.x` |
-| L3 | Peer reachable? | `ping -c 2 10.7.18.79` | 0% loss |
-| DNS | Name → edge? | `dig @10.7.19.196 app.team1.test +short` | `10.7.18.79` |
-| L4 | Port open? | `nc -zvw3 10.7.18.79 8443` | succeeded |
-| TLS | Cert/SNI? | `openssl s_client -connect 10.7.18.79:8443 -servername app.team1.test` | handshake + SAN |
-| App | JSON? | `curl -i https://app.team1.test:8443/api/status` | 200 + `X-Backend` |
+When diagnosing network faults, start from the physical/link layer at the bottom and work upward. **Never start troubleshooting at the application layer (`curl`).**
 
-## Incidents we actually hit
+---
 
-**NXDOMAIN on `dig app.team1.test`**
-Client DNS was `8.8.8.8`. Public roots have no `team1.test`. Point Wi-Fi DNS at `10.7.19.196` and flush mDNSResponder.
+## 1. The Bottom-Up Diagnosis Framework
 
-**dnsmasq listens, other Macs cannot query it**
-macOS Application Firewall. `socketfilterfw --add` the dnsmasq binary; confirm `lsof` shows `10.7.19.196:53`.
+```
+[Layer 1/2]  Check Physical/Link Status   -> ifconfig en0 (status: active, valid IP assigned)
+     |
+     v
+[Layer 3]    Check IP Reachability         -> ping -c 2 <target_ip> (ICMP Echo)
+     |
+     v
+[Layer 7]    Check Name Resolution         -> dig @<dns_ip> app.team1.test +short
+     |
+     v
+[Layer 4]    Check Transport Port / Socket -> nc -zvw3 <target_ip> 8443
+     |
+     v
+[Layer 5/6]  Check TLS Certificate & Cipher -> openssl s_client -connect <target_ip>:8443 -servername app.team1.test
+     |
+     v
+[Layer 7]    Check Application Response    -> curl -v -i https://app.team1.test:8443/api/status
+```
 
-**All 6 nginx requests return `X-Backend: B`**
-Upstream still listed Mac 3 as `10.7.11.99` after DHCP gave Ishita `10.7.17.218`. Direct `curl http://10.7.17.218:3001/api/status` worked. Fix the upstream, `nginx -t`, restart nginx.
+---
 
-**Localhost `:3001` works, LAN curl hangs**
-Node allowed on loopback only, or firewall. `lsof` should show `*:3001`, not `127.0.0.1:3001`. Allow incoming for that node binary.
+## 2. Diagnosis Quick Reference Table
 
-**`If-None-Match` through nginx returns 200**
-Round-robin sent the validator to the other backend, whose ETag did not match. Prove 304 against one origin (`http://10.7.17.218:3001/api/status`) first.
+| Layer | Question to Answer | Verification Command | Healthy Result |
+|:---|:---|:---|:---|
+| **L1/L2 (Link)** | Wi-Fi radio connected and interface active? | `ifconfig en0 \| grep -E "status\|inet "` | `status: active` and valid `10.7.x.x` IP |
+| **L3 (Network)** | Host reachable across the private subnet? | `ping -c 3 10.7.18.79` | `0.0% packet loss` |
+| **L7 (DNS)** | Does domain map to the Edge proxy? | `dig @10.7.19.196 app.team1.test +short` | `10.7.18.79` |
+| **L4 (Transport)** | Is the listening socket open on target node? | `nc -zvw3 10.7.18.79 8443` | `Connection to 10.7.18.79 port 8443 [tcp] succeeded!` |
+| **L5/L6 (TLS)** | Is the TLS handshake and SAN cert valid? | `openssl s_client -connect 10.7.18.79:8443 -servername app.team1.test` | `Verify return code: 0 (ok)` |
+| **L7 (HTTP)** | Does the backend return JSON with headers? | `curl -i https://app.team1.test:8443/api/status` | `HTTP/2 200 OK` + `X-Backend: A/B` |
 
-**`HTTP 502` from nginx**
-Both upstreams down, or stale IPs. `curl` each backend from Mac 2. Check `/opt/homebrew/var/log/nginx/error.log`.
+---
 
-**Wrong port `9443`**
-Host is up (ping works) but nothing listens. TCP RST / connection refused is L4, not L3.
+## 3. Real Incident Case Studies Hit by Team Baby Shark
+
+### Incident 1: `NXDOMAIN` on `dig app.team1.test`
+- **Symptom**: Client failed to resolve `app.team1.test`.
+- **Root Cause**: Client machine had default DNS set to `8.8.8.8` (Google Public DNS), which has no record for `.test` RFC private zones.
+- **Resolution**:
+  ```bash
+  sudo networksetup -setdnsservers Wi-Fi 10.7.19.196
+  sudo dscacheutil -flushcache
+  sudo killall -HUP mDNSResponder
+  ```
+
+### Incident 2: dnsmasq Running Locally but LAN Peers Hang
+- **Symptom**: On Mac 1, `dig @127.0.0.1 app.team1.test` succeeded, but remote machines timing out when querying `@10.7.19.196`.
+- **Root Cause**: macOS Application Firewall was enabled and silently dropping incoming UDP port 53 packets from external hosts.
+- **Resolution**:
+  Added `dnsmasq` to firewall exceptions:
+  ```bash
+  sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add /opt/homebrew/opt/dnsmasq/sbin/dnsmasq
+  sudo /usr/libexec/ApplicationFirewall/socketfilterfw --unblockapp /opt/homebrew/opt/dnsmasq/sbin/dnsmasq
+  ```
+
+### Incident 3: Backend A DHCP Address Drift
+- **Symptom**: All client traffic routed exclusively to Backend B (`X-Backend: B` for 100% of requests).
+- **Root Cause**: Campus Wi-Fi DHCP dynamically changed Mac 3's IP from `10.7.11.99` to `10.7.17.218`. Nginx proxy failed connecting to the stale IP and failed over to B.
+- **Resolution**:
+  Updated `/opt/homebrew/etc/nginx/servers/team1.conf`:
+  ```nginx
+  upstream backend_pool {
+      server 10.7.17.218:3001; # updated IP
+      server 10.7.31.47:3002;
+  }
+  ```
+  Ran `nginx -t && brew services restart nginx`.
+
+### Incident 4: 304 Caching Request Routing to Alternate Backend
+- **Symptom**: Sending `If-None-Match` header returned HTTP 200 instead of HTTP 304.
+- **Root Cause**: The client sent an ETag generated by Backend A, but Nginx round-robin load balancer routed the revalidation request to Backend B, which did not recognize A's entity tag.
+- **Resolution**:
+  Unified cacheable endpoint `/api/cached` across both backends to share consistent validator `ETag: "v1"`.

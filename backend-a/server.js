@@ -31,7 +31,7 @@ app.get("/", (req, res) => {
   sendPayload(req, res, {
     backend: BACKEND_ID,
     status: "ok",
-    service: "team-baby-shark",
+    service: "TeamBabyShark",
   });
 });
 
@@ -39,6 +39,29 @@ app.get("/api/status", (req, res) => {
   sendPayload(req, res, {
     backend: BACKEND_ID,
     status: "ok",
+  });
+});
+
+const CACHE_ETAG = '"v1"';
+
+app.get("/api/cached", (req, res) => {
+  if (req.get("If-None-Match") === CACHE_ETAG) {
+    res.set({
+      ETag: CACHE_ETAG,
+      "Cache-Control": "max-age=60",
+      "X-Backend": BACKEND_ID,
+    });
+    return res.status(304).end();
+  }
+  res.set({
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "max-age=60",
+    ETag: CACHE_ETAG,
+    "X-Backend": BACKEND_ID,
+  });
+  return res.status(200).json({
+    backend: BACKEND_ID,
+    data: "cacheable content",
   });
 });
 

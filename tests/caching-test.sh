@@ -1,10 +1,10 @@
 #!/bin/bash
-# Hit a single backend directly so round-robin cannot send If-None-Match
-# to the other instance (that was the 1 Oct failure mode).
+# Live Task F path: /api/cached with ETag "v1" (Backend B, also on A).
+# This is the URL that returned 304 through nginx on 1 Oct.
 
 set -e
 
-URL="${URL:-http://10.7.17.218:3001/api/status}"
+URL="${URL:-https://app.team1.test:8443/api/cached}"
 
 echo "=== TASK F: HTTP CACHING TEST ==="
 echo "URL: $URL"
@@ -18,7 +18,7 @@ echo
 echo "Observed ETag: $ETAG"
 
 if [ -z "$ETAG" ]; then
-  ETAG='"A-v1"'
+  ETAG='"v1"'
 fi
 
 echo
@@ -29,7 +29,7 @@ echo "$COND_RESPONSE" | grep -E -i "HTTP/|ETag|Cache-Control|X-Backend"
 STATUS_CODE=$(echo "$COND_RESPONSE" | head -n1 | awk '{print $2}')
 if [ "$STATUS_CODE" != "304" ]; then
   echo "[FAIL] expected 304, got $STATUS_CODE"
-  echo "If this URL is the nginx VIP, round-robin may land on the other backend."
+  echo "Retry against one origin: URL=http://10.7.31.47:3002/api/cached $0"
   exit 1
 fi
 
