@@ -1,10 +1,20 @@
 # Mac 4 — Backend B
 
 ## Team member
-Aditya Verma (`2401010040`)
+Aditya Verma (`2401010040`) — **TeamBabyShark**
 
-## Role
-Application server instance B. Live lab responses were served by Python (`Server: Werkzeug/3.1.9 Python/3.13.5`). This repo keeps a small stdlib HTTP server with the headers the rubric requires.
+## Where it runs (live lab)
+Terminal on Aditya's Mac: `~/backend — python app.py`
+
+```bash
+cd ~/backend
+python3 -m pip install -r requirements.txt
+python3 app.py
+```
+
+`Server:` header in the lab was `Werkzeug/3.1.9 Python/3.13.5`. This folder is that Flask app.
+
+Binds `0.0.0.0:3002`.
 
 ## Network
 | Field | Value |
@@ -13,24 +23,28 @@ Application server instance B. Live lab responses were served by Python (`Server
 | Interface | `en0` |
 | IPv4 | `10.7.31.47` |
 | Port | `3002` |
-| Bind | `0.0.0.0:3002` |
 
 ## Endpoints
-- `GET /`
 - `GET /api/status` → `{ "backend": "B", "status": "ok" }`
+- `GET /api/cached` → `{ "backend": "B", "data": "cacheable content" }` with `ETag: "v1"`
+
+Conditional revalidation (verified through nginx on 1 Oct):
+
+```bash
+curl -i http://localhost:3002/api/cached
+curl -i -H 'If-None-Match: "v1"' http://localhost:3002/api/cached
+# HTTP/1.1 304 NOT MODIFIED
+```
 
 ## Headers
 - `X-Backend: B`
 - `Cache-Control: max-age=60`
-- `ETag: "B-v1"`
-
-## Run
-```bash
-python3 server.py
-```
+- `ETag: "v1"` on `/api/cached`
 
 ## Verify
 ```bash
 curl -i http://localhost:3002/api/status
 curl -i http://10.7.31.47:3002/api/status
 ```
+
+Evidence: `evidence/task-c/Mac4-TaskC-BackendB-python-app.jpg`
