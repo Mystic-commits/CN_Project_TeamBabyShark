@@ -47,7 +47,7 @@ def status():
 @app.get("/api/cached")
 def cached():
     return json_with_cache(
-        {"backend": BACKEND_ID, "data": "cacheable content"},
+        {"data": "cacheable content"},
         CACHE_ETAG,
     )
 

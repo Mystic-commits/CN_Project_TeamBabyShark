@@ -46,7 +46,7 @@ except ImportError:
             elif self.path == "/api/status":
                 payload = {"backend": BACKEND_ID, "status": "ok"}
             elif self.path == "/api/cached":
-                payload = {"backend": BACKEND_ID, "data": "cacheable content"}
+                payload = {"data": "cacheable content"}
             else:
                 body = json.dumps({"error": "not found"}).encode("utf-8")
                 self.send_response(404)

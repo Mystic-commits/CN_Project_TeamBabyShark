@@ -60,7 +60,6 @@ app.get("/api/cached", (req, res) => {
     "X-Backend": BACKEND_ID,
   });
   return res.status(200).json({
-    backend: BACKEND_ID,
     data: "cacheable content",
   });
 });
