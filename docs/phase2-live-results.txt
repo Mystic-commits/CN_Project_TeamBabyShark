@@ -36,11 +36,17 @@ Learning: name resolution can survive one DNS service failure; cached answers al
 not evidence that a backup resolver was used.
 Evidence: dns-failover.txt and dns-failover.pcapng.
 
-EXTENSION B - TTL / CACHE: TEST IN PROGRESS
-Controlled ttl.team1.test experiment uses primary DNS only for this client's experiment;
-normal app.team1.test records remain unchanged. Client dual DNS will be restored on exit.
-See dns-ttl.txt and dns-ttl.pcapng after the experiment completes; report actual old/new
-answers and observed timing rather than assuming the OS obeys exactly 30 seconds.
+EXTENSION B - TTL / CACHE: VERIFIED WITH CONTROLLED CLIENT CACHE
+A temporary ttl.team1.test record on primary DNS changed from 10.7.6.136 to 10.7.23.11.
+A separate client-side caching resolver on 127.0.0.1:1053 retained the old answer with
+TTL 29, 24 and 13 seconds; after 33 seconds it fetched the new address with TTL 30.
+macOS itself retained the earlier answer longer in this trial; a manual OS cache flush
+updated it to the new address. After reversing the server record, both caches retained
+the newer cached address until explicitly flushed, then returned the restored old address.
+The temporary record and client cache were removed, original application records restored,
+and dual client DNS configuration restored. Do not claim macOS switched at exactly 30 seconds.
+Learning: authoritative records, client caches and OS cache behavior are separate observations.
+Evidence: dns-ttl.txt and dns-ttl.pcapng.
 
 EXTENSION C - SERVICE ISOLATION: CLIENT/PROXY PATH VERIFIED
 Mac 1 -> Backend A: TCP connection timeout, curl exit 28.
@@ -54,18 +60,27 @@ flush or reload the global ruleset. Collect each backend's apply and rollback ou
 Learning: reachable origins can be hidden from clients while remaining reachable to a proxy.
 Evidence: backend-a-isolation.txt, backend-b-isolation.txt, plus teammate firewall output.
 
-EXTENSION D - BACKEND FAILOVER: TEAMMATE-REPORTED
-User reports Ansh completed failure and recovery testing. The client baseline verifies both
-backends are healthy now. Obtain the actual stop-A/B-only/restart-A/A+B log before treating
-this extension as documented evidence. Do not substitute normal A/B balancing for failover.
-nginx uses passive failure detection, retries selected failures and later probes recovered
-origins through requests. The active edge remains a single point of failure until migration.
+EXTENSION D - BACKEND FAILOVER: DOCUMENTED BY TEAMMATE EVIDENCE
+Ansh supplied Ansh-Mac2-Failover-Recovery.txt with timestamped request records and nginx logs.
+Each phase tested app.team1.test and api.team1.test, six trusted HTTPS requests per hostname.
+Baseline (22:11:43 IST): 12 HTTP 200 responses, A=5 and B=7.
+A stopped (22:17:49 IST): 12 HTTP 200 responses, A=0 and B=12.
+Recovery (22:22:01 IST): 12 HTTP 200 responses, A=5 and B=7.
+The nginx retry log shows upstream_status=502, 200 and origin addresses A then B;
+the error log records connection refusal at A. Counts were checked against all 36 rows.
+These teammate tests pinned the primary edge while verifying its CA and hostname;
+they demonstrate upstream failure/recovery, not DNS migration. Local baseline checks
+separately verified normal system-DNS HTTPS. The active edge is still a single point
+of failure until an edge migration is deliberately performed.
+Learning: nginx can retry an unavailable origin and later return it to load balancing.
+Evidence: Ansh-Mac2-Failover-Recovery.txt (received from Ansh, not independently witnessed).
 
 EXTENSION E - EDGE MIGRATION: PREPARED, NOT YET VERIFIED
 Standby nginx is running on Mac 1 with SANs for app.team1.test and api.team1.test.
+Both origins were reachable after the migration firewall exceptions were updated.
 A direct preparation check used --resolve plus trusted certificate validation and returned
 200 with X-Edge standby-mac1. This is a preparation check, not proof of DNS cutover.
-Backend isolation must temporarily allow Mac 1; both DNS servers must then point app/api
+Both backends now allow Mac 1 during migration; both DNS servers must then point app/api
 to Mac 1. Capture old cache vs new server answers, fresh hostname requests to standby,
 and restore DNS plus baseline firewall rules after the demonstration.
 
@@ -80,9 +95,9 @@ FINAL HANDOFF CHECKLIST
 [verified] Current local IP and gateway; obtain masks/interfaces from all other machines.
 [verified] DNS, HTTPS, A/B and cache evidence.
 [verified] Backup DNS failure plus recovery.
-[in progress] TTL expiry and manual flush evidence.
+[verified] Controlled client TTL expiry and OS/manual cache flush evidence.
 [verified] Both backend ports blocked from Mac 1 while edge serves requests.
-[needed] Ansh's backend stop/restart failure evidence.
+[documented] Ansh's backend stop/restart failure evidence, 36 successful requests.
 [needed] Both DNS records switched to standby and restored; firewall exception restored.
 [needed] Each backend's firewall rollback evidence.
 [needed at evaluation] Faculty-injected troubleshooting and individual viva.

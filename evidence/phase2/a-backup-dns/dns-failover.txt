@@ -1,0 +1,451 @@
+Capturing on 'Wi-Fi: en0' and 'Loopback: lo0'
+File: /Users/Mystic/Documents/Codex/2026-11-24/w/outputs/dns-failover.pcapng
+Packets: 92 Packets: 160 Packets: 216 Tue Nov 24 16:59:42 UTC 2026
+Before failure: both configured DNS services
+10.7.23.11
+10.7.12.137
+
+; <<>> DiG 9.10.6 <<>> +time=2 +tries=1 @10.7.23.11 app.team1.test
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 28888
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+;; QUESTION SECTION:
+;app.team1.test.			IN	A
+
+;; ANSWER SECTION:
+app.team1.test.		30	IN	A	10.7.6.136
+
+;; Query time: 1 msec
+;; SERVER: 10.7.23.11#53(10.7.23.11)
+;; WHEN: Tue Nov 24 22:29:43 IST 2026
+;; MSG SIZE  rcvd: 59
+
+
+; <<>> DiG 9.10.6 <<>> +time=2 +tries=1 @10.7.12.137 app.team1.test
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 12954
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+;; QUESTION SECTION:
+;app.team1.test.			IN	A
+
+;; ANSWER SECTION:
+app.team1.test.		30	IN	A	10.7.6.136
+
+;; Query time: 46 msec
+;; SERVER: 10.7.12.137#53(10.7.12.137)
+;; WHEN: Tue Nov 24 22:29:43 IST 2026
+;; MSG SIZE  rcvd: 59
+
+Stopping only this project primary DNS PID 69020
+Packets: 287 Packets: 326 Packets: 358 Packets: 363 Primary explicit query should now fail
+Packets: 420 Packets: 501 Packets: 519 Packets: 537 
+; <<>> DiG 9.10.6 <<>> +time=1 +tries=1 @10.7.23.11 app.team1.test
+; (1 server found)
+;; global options: +cmd
+;; connection timed out; no servers could be reached
+Fresh system-resolver HTTPS requests while primary is down
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0Packets: 588 Packets: 620 Packets: 661 Packets: 688   0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0Packets: 736 Packets: 769 Packets: 824 Packets: 864   0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0Packets: 1007 Packets: 1092 Packets: 1137 Packets: 1186   0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0100    30  100    30    0     0      9      0  0:00:03  0:00:03 --:--:--     9
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 16:59:48 GMT
+Content-Type: application/json
+Content-Length: 30
+Connection: keep-alive
+Cache-Control: max-age=60
+ETag: "B-v1"
+X-Backend: B
+X-Edge: edge
+
+{"backend":"B","status":"ok"}
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0Packets: 1264 100    29  100    29    0     0    158      0 --:--:-- --:--:-- --:--:--   159
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 16:59:48 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 29
+Connection: keep-alive
+X-Powered-By: Express
+Cache-Control: max-age=60
+ETag: "A-v1"
+X-Backend: A
+X-Edge: edge
+
+{"backend":"A","status":"ok"}  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0Packets: 1289 Packets: 1311 100    30  100    30    0     0     60      0 --:--:-- --:--:-- --:--:--    60
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 16:59:49 GMT
+Content-Type: application/json
+Content-Length: 30
+Connection: keep-alive
+Cache-Control: max-age=60
+ETag: "B-v1"
+X-Backend: B
+X-Edge: edge
+
+{"backend":"B","status":"ok"}
+Restore primary DNS
+Nov 24 22:29:49 dnsmasq[75905]: started, version 2.93 cachesize 150
+Nov 24 22:29:49 dnsmasq[75905]: compile time options: IPv6 GNU-getopt no-DBus no-UBus no-i18n no-IDN DHCP DHCPv6 no-Lua TFTP no-conntrack no-ipset no-nftset auth no-DNSSEC loop-detect no-inotify dumpfile
+Nov 24 22:29:49 dnsmasq[75905]: using nameserver 8.8.8.8#53
+Nov 24 22:29:49 dnsmasq[75905]: using only locally-known addresses for team1.test
+Nov 24 22:29:49 dnsmasq[75905]: read /etc/hosts - 3 names
+Packets captured: 1311
+Packets received/dropped on interface 'Wi-Fi: en0': 1236/0 (pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0) (100.0%)
+Packets received/dropped on interface 'Loopback: lo0': 75/0 (pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0) (100.0%)
+Nov 24 22:29:50 dnsmasq[75905]: query[A] app.team1.test from 10.7.23.11
+Nov 24 22:29:50 dnsmasq[75905]: config app.team1.test is 10.7.6.136
+
+; <<>> DiG 9.10.6 <<>> +time=2 +tries=1 @10.7.23.11 app.team1.test
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 60104
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+;; QUESTION SECTION:
+;app.team1.test.			IN	A
+
+;; ANSWER SECTION:
+app.team1.test.		30	IN	A	10.7.6.136
+
+;; Query time: 5 msec
+;; SERVER: 10.7.23.11#53(10.7.23.11)
+;; WHEN: Tue Nov 24 22:29:50 IST 2026
+;; MSG SIZE  rcvd: 59
+
+DNS failure test finished; inspect capture for backup queries and replies.
+Nov 24 22:30:12 dnsmasq[75905]: query[HTTPS] chat.openai.com from 10.7.23.11
+Nov 24 22:30:12 dnsmasq[75905]: forwarded chat.openai.com to 8.8.8.8
+Nov 24 22:30:12 dnsmasq[75905]: query[A] chat.openai.com from 10.7.23.11
+Nov 24 22:30:12 dnsmasq[75905]: forwarded chat.openai.com to 8.8.8.8
+Nov 24 22:30:12 dnsmasq[75905]: reply chat.openai.com is <CNAME>
+Nov 24 22:30:12 dnsmasq[75905]: reply chat.openai.com.cdn.cloudflare.net is NODATA
+Nov 24 22:30:12 dnsmasq[75905]: reply chat.openai.com is <CNAME>
+Nov 24 22:30:12 dnsmasq[75905]: reply chat.openai.com.cdn.cloudflare.net is 172.64.150.28
+Nov 24 22:30:12 dnsmasq[75905]: reply chat.openai.com.cdn.cloudflare.net is 104.18.37.228
+Nov 24 22:30:27 dnsmasq[75905]: query[HTTPS] chatgpt.com from 10.7.23.11
+Nov 24 22:30:27 dnsmasq[75905]: forwarded chatgpt.com to 8.8.8.8
+Nov 24 22:30:27 dnsmasq[75905]: query[A] chatgpt.com from 10.7.23.11
+Nov 24 22:30:27 dnsmasq[75905]: forwarded chatgpt.com to 8.8.8.8
+Nov 24 22:30:27 dnsmasq[75905]: reply chatgpt.com is <HTTPS>
+Nov 24 22:30:27 dnsmasq[75905]: reply chatgpt.com is 172.64.155.209
+Nov 24 22:30:27 dnsmasq[75905]: reply chatgpt.com is 104.18.32.47
+Nov 24 22:30:33 dnsmasq[75905]: query[A] e6858.dsce9.akamaiedge.net from 10.7.12.137
+Nov 24 22:30:33 dnsmasq[75905]: forwarded e6858.dsce9.akamaiedge.net to 8.8.8.8
+Nov 24 22:30:33 dnsmasq[75905]: query[A] 1.courier-sandbox-push-apple.com.akadns.net from 10.7.12.137
+Nov 24 22:30:33 dnsmasq[75905]: forwarded 1.courier-sandbox-push-apple.com.akadns.net to 8.8.8.8
+Nov 24 22:30:33 dnsmasq[75905]: query[HTTPS] mmx-ds.cdn.whatsapp.net from 10.7.12.137
+Nov 24 22:30:33 dnsmasq[75905]: forwarded mmx-ds.cdn.whatsapp.net to 8.8.8.8
+Nov 24 22:30:33 dnsmasq[75905]: reply e6858.dsce9.akamaiedge.net is 23.222.31.50
+Nov 24 22:30:33 dnsmasq[75905]: query[A] mmx-ds.cdn.whatsapp.net from 10.7.12.137
+Nov 24 22:30:33 dnsmasq[75905]: forwarded mmx-ds.cdn.whatsapp.net to 8.8.8.8
+Nov 24 22:30:33 dnsmasq[75905]: query[A] www.google.com from 10.7.12.137
+Nov 24 22:30:33 dnsmasq[75905]: forwarded www.google.com to 8.8.8.8
+Nov 24 22:30:33 dnsmasq[75905]: reply mmx-ds.cdn.whatsapp.net is NODATA
+Nov 24 22:30:33 dnsmasq[75905]: reply mmx-ds.cdn.whatsapp.net is 57.144.147.32
+Nov 24 22:30:33 dnsmasq[75905]: reply www.google.com is 142.251.152.119
+Nov 24 22:30:33 dnsmasq[75905]: reply www.google.com is 142.251.151.119
+Nov 24 22:30:33 dnsmasq[75905]: reply www.google.com is 142.251.150.119
+Nov 24 22:30:33 dnsmasq[75905]: reply www.google.com is 142.251.154.119
+Nov 24 22:30:33 dnsmasq[75905]: reply www.google.com is 142.251.156.119
+Nov 24 22:30:33 dnsmasq[75905]: reply www.google.com is 142.251.153.119
+Nov 24 22:30:33 dnsmasq[75905]: reply www.google.com is 142.251.157.119
+Nov 24 22:30:33 dnsmasq[75905]: reply www.google.com is 142.251.155.119
+Nov 24 22:30:33 dnsmasq[75905]: reply 1.courier-sandbox-push-apple.com.akadns.net is <CNAME>
+Nov 24 22:30:33 dnsmasq[75905]: reply us-sandbox-courier-4.push-apple.com.akadns.net is 17.188.168.146
+Nov 24 22:30:33 dnsmasq[75905]: reply us-sandbox-courier-4.push-apple.com.akadns.net is 17.188.168.210
+Nov 24 22:30:33 dnsmasq[75905]: reply us-sandbox-courier-4.push-apple.com.akadns.net is 17.188.169.135
+Nov 24 22:30:33 dnsmasq[75905]: reply us-sandbox-courier-4.push-apple.com.akadns.net is 17.188.171.72
+Nov 24 22:30:33 dnsmasq[75905]: reply us-sandbox-courier-4.push-apple.com.akadns.net is 17.188.168.141
+Nov 24 22:30:33 dnsmasq[75905]: reply us-sandbox-courier-4.push-apple.com.akadns.net is 17.188.169.136
+Nov 24 22:30:33 dnsmasq[75905]: reply us-sandbox-courier-4.push-apple.com.akadns.net is 17.188.170.199
+Nov 24 22:30:33 dnsmasq[75905]: reply us-sandbox-courier-4.push-apple.com.akadns.net is 17.188.170.200
+Nov 24 22:30:36 dnsmasq[75905]: query[HTTPS] www.linkedin.com from 10.7.23.11
+Nov 24 22:30:36 dnsmasq[75905]: forwarded www.linkedin.com to 8.8.8.8
+Nov 24 22:30:36 dnsmasq[75905]: query[A] www.linkedin.com from 10.7.23.11
+Nov 24 22:30:36 dnsmasq[75905]: forwarded www.linkedin.com to 8.8.8.8
+Nov 24 22:30:36 dnsmasq[75905]: reply www.linkedin.com is <CNAME>
+Nov 24 22:30:36 dnsmasq[75905]: reply www.es.lnkdns.net is <CNAME>
+Nov 24 22:30:36 dnsmasq[75905]: reply www.linkedin.com.cdn.cloudflare.net is NODATA
+Nov 24 22:30:36 dnsmasq[75905]: reply www.linkedin.com is <CNAME>
+Nov 24 22:30:36 dnsmasq[75905]: reply www.es.lnkdns.net is <CNAME>
+Nov 24 22:30:36 dnsmasq[75905]: reply www.linkedin.com.cdn.cloudflare.net is 104.18.41.41
+Nov 24 22:30:36 dnsmasq[75905]: reply www.linkedin.com.cdn.cloudflare.net is 172.64.146.215
+Nov 24 22:30:39 dnsmasq[75905]: query[HTTPS] mobile.events.data.microsoft.com from 10.7.12.137
+Nov 24 22:30:39 dnsmasq[75905]: forwarded mobile.events.data.microsoft.com to 8.8.8.8
+Nov 24 22:30:39 dnsmasq[75905]: query[A] mobile.events.data.microsoft.com from 10.7.12.137
+Nov 24 22:30:39 dnsmasq[75905]: forwarded mobile.events.data.microsoft.com to 8.8.8.8
+Nov 24 22:30:39 dnsmasq[75905]: reply mobile.events.data.microsoft.com is <CNAME>
+Nov 24 22:30:39 dnsmasq[75905]: reply mobile.events.data.trafficmanager.net is <CNAME>
+Nov 24 22:30:39 dnsmasq[75905]: reply onedscolprdeus69.eastus.cloudapp.azure.com is NODATA
+Nov 24 22:30:39 dnsmasq[75905]: reply mobile.events.data.microsoft.com is <CNAME>
+Nov 24 22:30:39 dnsmasq[75905]: reply mobile.events.data.trafficmanager.net is <CNAME>
+Nov 24 22:30:39 dnsmasq[75905]: reply onedscolprdwus58.westus.cloudapp.azure.com is 20.184.175.7
+Nov 24 22:30:39 dnsmasq[75905]: query[HTTPS] onedscolprdeus69.eastus.cloudapp.azure.com from 10.7.12.137
+Nov 24 22:30:39 dnsmasq[75905]: forwarded onedscolprdeus69.eastus.cloudapp.azure.com to 8.8.8.8
+Nov 24 22:30:39 dnsmasq[75905]: query[A] onedscolprdeus69.eastus.cloudapp.azure.com from 10.7.12.137
+Nov 24 22:30:39 dnsmasq[75905]: forwarded onedscolprdeus69.eastus.cloudapp.azure.com to 8.8.8.8
+Nov 24 22:30:39 dnsmasq[75905]: reply onedscolprdeus69.eastus.cloudapp.azure.com is NODATA
+Nov 24 22:30:39 dnsmasq[75905]: reply onedscolprdeus69.eastus.cloudapp.azure.com is 20.42.73.29
+Nov 24 22:30:46 dnsmasq[75905]: query[HTTPS] gateway.fe2.apple-dns.net from 10.7.12.137
+Nov 24 22:30:46 dnsmasq[75905]: forwarded gateway.fe2.apple-dns.net to 8.8.8.8
+Nov 24 22:30:46 dnsmasq[75905]: query[A] gateway.fe2.apple-dns.net from 10.7.12.137
+Nov 24 22:30:46 dnsmasq[75905]: forwarded gateway.fe2.apple-dns.net to 8.8.8.8
+Nov 24 22:30:46 dnsmasq[75905]: reply gateway.fe2.apple-dns.net is <HTTPS>
+Nov 24 22:30:46 dnsmasq[75905]: reply gateway.fe2.apple-dns.net is 17.248.239.10
+Nov 24 22:30:50 dnsmasq[75905]: query[PTR] lb._dns-sd._udp.0.0.7.10.in-addr.arpa from 10.7.23.11
+Nov 24 22:30:50 dnsmasq[75905]: forwarded lb._dns-sd._udp.0.0.7.10.in-addr.arpa to 8.8.8.8
+Nov 24 22:30:50 dnsmasq[75905]: query[PTR] b._dns-sd._udp.0.0.7.10.in-addr.arpa from 10.7.23.11
+Nov 24 22:30:50 dnsmasq[75905]: forwarded b._dns-sd._udp.0.0.7.10.in-addr.arpa to 8.8.8.8
+Nov 24 22:30:50 dnsmasq[75905]: query[PTR] db._dns-sd._udp.0.0.7.10.in-addr.arpa from 10.7.23.11
+Nov 24 22:30:50 dnsmasq[75905]: forwarded db._dns-sd._udp.0.0.7.10.in-addr.arpa to 8.8.8.8
+Nov 24 22:30:50 dnsmasq[75905]: reply db._dns-sd._udp.0.0.7.10.in-addr.arpa is NXDOMAIN
+Nov 24 22:30:50 dnsmasq[75905]: reply b._dns-sd._udp.0.0.7.10.in-addr.arpa is NXDOMAIN
+Nov 24 22:30:50 dnsmasq[75905]: reply lb._dns-sd._udp.0.0.7.10.in-addr.arpa is NXDOMAIN
+Nov 24 22:30:55 dnsmasq[75905]: query[A] time.cloudflare.com from 10.7.12.137
+Nov 24 22:30:55 dnsmasq[75905]: forwarded time.cloudflare.com to 8.8.8.8
+Nov 24 22:30:55 dnsmasq[75905]: reply time.cloudflare.com is 162.159.200.123
+Nov 24 22:30:55 dnsmasq[75905]: reply time.cloudflare.com is 162.159.200.1
+Nov 24 22:30:57 dnsmasq[75905]: query[A] chatgpt.com from 10.7.23.11
+Nov 24 22:30:57 dnsmasq[75905]: forwarded chatgpt.com to 8.8.8.8
+Nov 24 22:30:57 dnsmasq[75905]: reply chatgpt.com is 104.18.32.47
+Nov 24 22:30:57 dnsmasq[75905]: reply chatgpt.com is 172.64.155.209
+Nov 24 22:30:57 dnsmasq[75905]: query[HTTPS] chatgpt.com from 10.7.23.11
+Nov 24 22:30:57 dnsmasq[75905]: forwarded chatgpt.com to 8.8.8.8
+Nov 24 22:30:57 dnsmasq[75905]: query[A] chatgpt.com from 10.7.23.11
+Nov 24 22:30:57 dnsmasq[75905]: cached chatgpt.com is 104.18.32.47
+Nov 24 22:30:57 dnsmasq[75905]: cached chatgpt.com is 172.64.155.209
+Nov 24 22:30:57 dnsmasq[75905]: reply chatgpt.com is <HTTPS>
+Nov 24 22:30:57 dnsmasq[75905]: query[A] app.team1.test from 10.7.23.11
+Nov 24 22:30:57 dnsmasq[75905]: config app.team1.test is 10.7.6.136
+Nov 24 22:30:57 dnsmasq[75905]: query[A] app.team1.test from 10.7.23.11
+Nov 24 22:30:57 dnsmasq[75905]: config app.team1.test is 10.7.6.136
+Nov 24 22:30:58 dnsmasq[75905]: query[HTTPS] learn.chatgpt.com from 10.7.23.11
+Nov 24 22:30:58 dnsmasq[75905]: forwarded learn.chatgpt.com to 8.8.8.8
+Nov 24 22:30:58 dnsmasq[75905]: query[A] learn.chatgpt.com from 10.7.23.11
+Nov 24 22:30:58 dnsmasq[75905]: forwarded learn.chatgpt.com to 8.8.8.8
+Nov 24 22:30:58 dnsmasq[75905]: reply learn.chatgpt.com is <CNAME>
+Nov 24 22:30:58 dnsmasq[75905]: reply 08d9e9b18d2ea32e.vercel-dns-013.com is NODATA
+Nov 24 22:30:58 dnsmasq[75905]: reply learn.chatgpt.com is <CNAME>
+Nov 24 22:30:58 dnsmasq[75905]: reply 08d9e9b18d2ea32e.vercel-dns-013.com is 64.239.123.65
+Nov 24 22:30:58 dnsmasq[75905]: reply 08d9e9b18d2ea32e.vercel-dns-013.com is 64.239.109.65
+Nov 24 22:30:59 dnsmasq[75905]: query[A] app.team1.test from 10.7.23.11
+Nov 24 22:30:59 dnsmasq[75905]: config app.team1.test is 10.7.6.136
+Nov 24 22:31:10 dnsmasq[75905]: query[HTTPS] gs-loc.apple.com from 10.7.12.137
+Nov 24 22:31:10 dnsmasq[75905]: forwarded gs-loc.apple.com to 8.8.8.8
+Nov 24 22:31:10 dnsmasq[75905]: query[A] gs-loc.apple.com from 10.7.12.137
+Nov 24 22:31:10 dnsmasq[75905]: forwarded gs-loc.apple.com to 8.8.8.8
+Nov 24 22:31:10 dnsmasq[75905]: reply gs-loc.apple.com is <CNAME>
+Nov 24 22:31:10 dnsmasq[75905]: reply gs-loc-new.ls-apple.com.akadns.net is <CNAME>
+Nov 24 22:31:10 dnsmasq[75905]: reply gs-loc.ls-apple.com.akadns.net is NODATA
+Nov 24 22:31:10 dnsmasq[75905]: query[HTTPS] gs-loc.ls-apple.com.akadns.net from 10.7.12.137
+Nov 24 22:31:10 dnsmasq[75905]: forwarded gs-loc.ls-apple.com.akadns.net to 8.8.8.8
+Nov 24 22:31:10 dnsmasq[75905]: reply gs-loc.ls-apple.com.akadns.net is NODATA
+Nov 24 22:31:10 dnsmasq[75905]: reply gs-loc.apple.com is <CNAME>
+Nov 24 22:31:10 dnsmasq[75905]: reply gs-loc-new.ls-apple.com.akadns.net is <CNAME>
+Nov 24 22:31:10 dnsmasq[75905]: reply gs-loc.ls-apple.com.akadns.net is 17.242.179.27
+Nov 24 22:31:10 dnsmasq[75905]: query[A] chat.cdn.whatsapp.net from 10.7.12.137
+Nov 24 22:31:10 dnsmasq[75905]: forwarded chat.cdn.whatsapp.net to 8.8.8.8
+Nov 24 22:31:10 dnsmasq[75905]: reply chat.cdn.whatsapp.net is 57.144.147.33
+Nov 24 22:31:10 dnsmasq[75905]: query[A] mmx-ds.cdn.whatsapp.net from 10.7.12.137
+Nov 24 22:31:10 dnsmasq[75905]: forwarded mmx-ds.cdn.whatsapp.net to 8.8.8.8
+Nov 24 22:31:10 dnsmasq[75905]: reply mmx-ds.cdn.whatsapp.net is 57.144.147.32
+Nov 24 22:31:15 dnsmasq[75905]: query[HTTPS] sdk-03.moengage.com from 10.7.23.11
+Nov 24 22:31:15 dnsmasq[75905]: forwarded sdk-03.moengage.com to 8.8.8.8
+Nov 24 22:31:15 dnsmasq[75905]: query[A] sdk-03.moengage.com from 10.7.23.11
+Nov 24 22:31:15 dnsmasq[75905]: forwarded sdk-03.moengage.com to 8.8.8.8
+Nov 24 22:31:15 dnsmasq[75905]: reply sdk-03.moengage.com is NODATA
+Nov 24 22:31:15 dnsmasq[75905]: reply sdk-03.moengage.com is 13.225.103.36
+Nov 24 22:31:15 dnsmasq[75905]: reply sdk-03.moengage.com is 13.225.103.120
+Nov 24 22:31:15 dnsmasq[75905]: reply sdk-03.moengage.com is 13.225.103.24
+Nov 24 22:31:15 dnsmasq[75905]: reply sdk-03.moengage.com is 13.225.103.100
+Nov 24 22:31:15 dnsmasq[75905]: query[HTTPS] chat.openai.com from 10.7.23.11
+Nov 24 22:31:15 dnsmasq[75905]: cached chat.openai.com is <CNAME>
+Nov 24 22:31:15 dnsmasq[75905]: forwarded chat.openai.com to 8.8.8.8
+Nov 24 22:31:15 dnsmasq[75905]: query[A] chat.openai.com from 10.7.23.11
+Nov 24 22:31:15 dnsmasq[75905]: cached chat.openai.com is <CNAME>
+Nov 24 22:31:15 dnsmasq[75905]: cached chat.openai.com.cdn.cloudflare.net is 172.64.150.28
+Nov 24 22:31:15 dnsmasq[75905]: cached chat.openai.com.cdn.cloudflare.net is 104.18.37.228
+Nov 24 22:31:15 dnsmasq[75905]: reply chat.openai.com is <CNAME>
+Nov 24 22:31:15 dnsmasq[75905]: reply chat.openai.com.cdn.cloudflare.net is NODATA
+Nov 24 22:31:19 dnsmasq[75905]: query[HTTPS] gateway.fe2.apple-dns.net from 10.7.23.11
+Nov 24 22:31:19 dnsmasq[75905]: forwarded gateway.fe2.apple-dns.net to 8.8.8.8
+Nov 24 22:31:19 dnsmasq[75905]: reply gateway.fe2.apple-dns.net is <HTTPS>
+Nov 24 22:31:20 dnsmasq[75905]: query[A] chat.cdn.whatsapp.net from 10.7.23.11
+Nov 24 22:31:20 dnsmasq[75905]: forwarded chat.cdn.whatsapp.net to 8.8.8.8
+Nov 24 22:31:20 dnsmasq[75905]: reply chat.cdn.whatsapp.net is 57.144.147.33
+Nov 24 22:31:28 dnsmasq[75905]: query[HTTPS] chatgpt.com from 10.7.23.11
+Nov 24 22:31:28 dnsmasq[75905]: forwarded chatgpt.com to 8.8.8.8
+Nov 24 22:31:28 dnsmasq[75905]: query[A] chatgpt.com from 10.7.23.11
+Nov 24 22:31:28 dnsmasq[75905]: cached chatgpt.com is 172.64.155.209
+Nov 24 22:31:28 dnsmasq[75905]: cached chatgpt.com is 104.18.32.47
+Nov 24 22:31:28 dnsmasq[75905]: reply chatgpt.com is <HTTPS>
+Nov 24 22:31:36 dnsmasq[75905]: query[A] api.github.com from 10.7.23.11
+Nov 24 22:31:36 dnsmasq[75905]: forwarded api.github.com to 8.8.8.8
+Nov 24 22:31:36 dnsmasq[75905]: reply api.github.com is 20.207.73.85
+Nov 24 22:31:39 dnsmasq[75905]: query[A] time-ios.g.aaplimg.com from 10.7.12.137
+Nov 24 22:31:39 dnsmasq[75905]: forwarded time-ios.g.aaplimg.com to 8.8.8.8
+Nov 24 22:31:39 dnsmasq[75905]: reply time-ios.g.aaplimg.com is 17.253.60.37
+Nov 24 22:31:39 dnsmasq[75905]: reply time-ios.g.aaplimg.com is 17.253.18.99
+Nov 24 22:31:39 dnsmasq[75905]: reply time-ios.g.aaplimg.com is 17.253.18.131
+Nov 24 22:31:43 dnsmasq[75905]: query[A] chat.cdn.whatsapp.net from 10.7.12.137
+Nov 24 22:31:43 dnsmasq[75905]: cached chat.cdn.whatsapp.net is 57.144.147.33
+Nov 24 22:31:53 dnsmasq[75905]: query[A] mmx-ds.cdn.whatsapp.net from 10.7.23.11
+Nov 24 22:31:53 dnsmasq[75905]: cached mmx-ds.cdn.whatsapp.net is 57.144.147.32
+Nov 24 22:31:56 dnsmasq[75905]: query[HTTPS] optimizationguide-pa.googleapis.com from 10.7.23.11
+Nov 24 22:31:56 dnsmasq[75905]: forwarded optimizationguide-pa.googleapis.com to 8.8.8.8
+Nov 24 22:31:56 dnsmasq[75905]: query[A] optimizationguide-pa.googleapis.com from 10.7.23.11
+Nov 24 22:31:56 dnsmasq[75905]: forwarded optimizationguide-pa.googleapis.com to 8.8.8.8
+Nov 24 22:31:56 dnsmasq[75905]: reply optimizationguide-pa.googleapis.com is 172.217.119.4
+Nov 24 22:31:56 dnsmasq[75905]: reply optimizationguide-pa.googleapis.com is 172.217.116.4
+Nov 24 22:31:56 dnsmasq[75905]: reply optimizationguide-pa.googleapis.com is 172.217.114.4
+Nov 24 22:31:56 dnsmasq[75905]: reply optimizationguide-pa.googleapis.com is 172.217.113.4
+Nov 24 22:31:56 dnsmasq[75905]: reply optimizationguide-pa.googleapis.com is 172.217.115.4
+Nov 24 22:31:56 dnsmasq[75905]: reply optimizationguide-pa.googleapis.com is 172.217.112.4
+Nov 24 22:31:56 dnsmasq[75905]: reply optimizationguide-pa.googleapis.com is 172.217.118.4
+Nov 24 22:31:56 dnsmasq[75905]: reply optimizationguide-pa.googleapis.com is 172.217.117.4
+Nov 24 22:31:56 dnsmasq[75905]: reply optimizationguide-pa.googleapis.com is NODATA
+Nov 24 22:32:02 dnsmasq[75905]: query[HTTPS] beacons.gcp.gvt2.com from 10.7.12.137
+Nov 24 22:32:02 dnsmasq[75905]: forwarded beacons.gcp.gvt2.com to 8.8.8.8
+Nov 24 22:32:02 dnsmasq[75905]: query[A] beacons.gcp.gvt2.com from 10.7.12.137
+Nov 24 22:32:02 dnsmasq[75905]: forwarded beacons.gcp.gvt2.com to 8.8.8.8
+Nov 24 22:32:02 dnsmasq[75905]: reply beacons.gcp.gvt2.com is <CNAME>
+Nov 24 22:32:02 dnsmasq[75905]: reply beacons-handoff.gcp.gvt2.com is <CNAME>
+Nov 24 22:32:02 dnsmasq[75905]: reply gce-beacons.gcp.gvt2.com is NODATA
+Nov 24 22:32:02 dnsmasq[75905]: reply beacons.gcp.gvt2.com is <CNAME>
+Nov 24 22:32:02 dnsmasq[75905]: reply beacons-handoff.gcp.gvt2.com is <CNAME>
+Nov 24 22:32:02 dnsmasq[75905]: reply gce-beacons.gcp.gvt2.com is 35.233.239.65
+Nov 24 22:32:04 dnsmasq[75905]: query[HTTPS] accounts.google.com from 10.7.12.137
+Nov 24 22:32:04 dnsmasq[75905]: forwarded accounts.google.com to 8.8.8.8
+Nov 24 22:32:04 dnsmasq[75905]: query[A] accounts.google.com from 10.7.12.137
+Nov 24 22:32:04 dnsmasq[75905]: forwarded accounts.google.com to 8.8.8.8
+Nov 24 22:32:04 dnsmasq[75905]: reply accounts.google.com is NODATA
+Nov 24 22:32:04 dnsmasq[75905]: reply accounts.google.com is 192.178.158.84
+Nov 24 22:32:08 dnsmasq[75905]: query[A] i.manage.microsoft.com from 10.7.12.137
+Nov 24 22:32:08 dnsmasq[75905]: forwarded i.manage.microsoft.com to 8.8.8.8
+Nov 24 22:32:08 dnsmasq[75905]: reply i.manage.microsoft.com is <CNAME>
+Nov 24 22:32:08 dnsmasq[75905]: reply manage-pe-mtls.trafficmanager.net is <CNAME>
+Nov 24 22:32:08 dnsmasq[75905]: reply pexsucpmtls-cqhefshkhrgmgqf9.b02.azurefd.net is <CNAME>
+Nov 24 22:32:08 dnsmasq[75905]: reply azurefd-t54-prod.trafficmanager.net is <CNAME>
+Nov 24 22:32:08 dnsmasq[75905]: reply shed.dual-low.s-part-0040.t-0009.t-s1-msedge.net is <CNAME>
+Nov 24 22:32:08 dnsmasq[75905]: reply s-part-0040.t-0009.t-s1-msedge.net is 13.107.228.51
+Nov 24 22:32:08 dnsmasq[75905]: query[A] agents.manage.microsoft.com from 10.7.12.137
+Nov 24 22:32:08 dnsmasq[75905]: forwarded agents.manage.microsoft.com to 8.8.8.8
+Nov 24 22:32:08 dnsmasq[75905]: query[HTTPS] agents.manage.microsoft.com from 10.7.12.137
+Nov 24 22:32:08 dnsmasq[75905]: forwarded agents.manage.microsoft.com to 8.8.8.8
+Nov 24 22:32:08 dnsmasq[75905]: reply agents.manage.microsoft.com is <CNAME>
+Nov 24 22:32:08 dnsmasq[75905]: reply manage-pe-mtls.trafficmanager.net is <CNAME>
+Nov 24 22:32:08 dnsmasq[75905]: reply pexsucpmtls-cqhefshkhrgmgqf9.b02.azurefd.net is <CNAME>
+Nov 24 22:32:08 dnsmasq[75905]: reply azurefd-t54-prod.trafficmanager.net is <CNAME>
+Nov 24 22:32:08 dnsmasq[75905]: reply shed.dual-low.s-part-0040.t-0009.t-s1-msedge.net is <CNAME>
+Nov 24 22:32:08 dnsmasq[75905]: reply s-part-0040.t-0009.t-s1-msedge.net is 13.107.228.51
+Nov 24 22:32:08 dnsmasq[75905]: reply agents.manage.microsoft.com is <CNAME>
+Nov 24 22:32:08 dnsmasq[75905]: reply manage-pe-mtls.trafficmanager.net is <CNAME>
+Nov 24 22:32:08 dnsmasq[75905]: reply pexsucpmtls-cqhefshkhrgmgqf9.b02.azurefd.net is <CNAME>
+Nov 24 22:32:08 dnsmasq[75905]: reply azurefd-t54-prod.trafficmanager.net is <CNAME>
+Nov 24 22:32:08 dnsmasq[75905]: reply shed.dual-low.s-part-0040.t-0009.t-s1-msedge.net is <CNAME>
+Nov 24 22:32:08 dnsmasq[75905]: reply s-part-0040.t-0009.t-s1-msedge.net is NODATA
+Nov 24 22:32:09 dnsmasq[75905]: query[HTTPS] s-part-0040.t-0009.t-s1-msedge.net from 10.7.12.137
+Nov 24 22:32:09 dnsmasq[75905]: forwarded s-part-0040.t-0009.t-s1-msedge.net to 8.8.8.8
+Nov 24 22:32:09 dnsmasq[75905]: reply s-part-0040.t-0009.t-s1-msedge.net is NODATA
+Nov 24 22:32:11 dnsmasq[75905]: query[A] www.apple.com from 10.7.12.137
+Nov 24 22:32:11 dnsmasq[75905]: forwarded www.apple.com to 8.8.8.8
+Nov 24 22:32:11 dnsmasq[75905]: query[A] us-sandbox-courier-4.push-apple.com.akadns.net from 10.7.12.137
+Nov 24 22:32:11 dnsmasq[75905]: forwarded us-sandbox-courier-4.push-apple.com.akadns.net to 8.8.8.8
+Nov 24 22:32:11 dnsmasq[75905]: reply www.apple.com is <CNAME>
+Nov 24 22:32:11 dnsmasq[75905]: reply www-apple-com.v.aaplimg.com is <CNAME>
+Nov 24 22:32:11 dnsmasq[75905]: reply www.apple.com.edgekey.net is <CNAME>
+Nov 24 22:32:11 dnsmasq[75905]: reply e6858.dsce9.akamaiedge.net is 23.222.31.50
+Nov 24 22:32:11 dnsmasq[75905]: reply us-sandbox-courier-4.push-apple.com.akadns.net is 17.188.143.3
+Nov 24 22:32:11 dnsmasq[75905]: reply us-sandbox-courier-4.push-apple.com.akadns.net is 17.188.178.92
+Nov 24 22:32:11 dnsmasq[75905]: reply us-sandbox-courier-4.push-apple.com.akadns.net is 17.188.178.124
+Nov 24 22:32:11 dnsmasq[75905]: reply us-sandbox-courier-4.push-apple.com.akadns.net is 17.188.178.61
+Nov 24 22:32:11 dnsmasq[75905]: reply us-sandbox-courier-4.push-apple.com.akadns.net is 17.188.143.222
+Nov 24 22:32:11 dnsmasq[75905]: reply us-sandbox-courier-4.push-apple.com.akadns.net is 17.188.178.156
+Nov 24 22:32:11 dnsmasq[75905]: reply us-sandbox-courier-4.push-apple.com.akadns.net is 17.188.143.226
+Nov 24 22:32:11 dnsmasq[75905]: reply us-sandbox-courier-4.push-apple.com.akadns.net is 17.188.178.220
+Nov 24 22:32:11 dnsmasq[75905]: query[HTTPS] mobile.events.data.microsoft.com from 10.7.12.137
+Nov 24 22:32:11 dnsmasq[75905]: forwarded mobile.events.data.microsoft.com to 8.8.8.8
+Nov 24 22:32:11 dnsmasq[75905]: query[A] mobile.events.data.microsoft.com from 10.7.12.137
+Nov 24 22:32:11 dnsmasq[75905]: forwarded mobile.events.data.microsoft.com to 8.8.8.8
+Nov 24 22:32:11 dnsmasq[75905]: reply mobile.events.data.microsoft.com is <CNAME>
+Nov 24 22:32:11 dnsmasq[75905]: reply mobile.events.data.trafficmanager.net is <CNAME>
+Nov 24 22:32:11 dnsmasq[75905]: reply onedscolprdfrc52.francecentral.cloudapp.azure.com is NODATA
+Nov 24 22:32:11 dnsmasq[75905]: reply mobile.events.data.microsoft.com is <CNAME>
+Nov 24 22:32:11 dnsmasq[75905]: reply mobile.events.data.trafficmanager.net is <CNAME>
+Nov 24 22:32:11 dnsmasq[75905]: reply onedscolprdcus57.centralus.cloudapp.azure.com is 4.150.223.100
+Nov 24 22:32:11 dnsmasq[75905]: query[HTTPS] onedscolprdfrc52.francecentral.cloudapp.azure.com from 10.7.12.137
+Nov 24 22:32:11 dnsmasq[75905]: forwarded onedscolprdfrc52.francecentral.cloudapp.azure.com to 8.8.8.8
+Nov 24 22:32:11 dnsmasq[75905]: query[A] onedscolprdfrc52.francecentral.cloudapp.azure.com from 10.7.12.137
+Nov 24 22:32:11 dnsmasq[75905]: forwarded onedscolprdfrc52.francecentral.cloudapp.azure.com to 8.8.8.8
+Nov 24 22:32:11 dnsmasq[75905]: reply onedscolprdfrc52.francecentral.cloudapp.azure.com is NODATA
+Nov 24 22:32:11 dnsmasq[75905]: reply onedscolprdfrc52.francecentral.cloudapp.azure.com is 40.79.141.159
+Nov 24 22:32:12 dnsmasq[75905]: query[HTTPS] ab.chatgpt.com from 10.7.23.11
+Nov 24 22:32:12 dnsmasq[75905]: forwarded ab.chatgpt.com to 8.8.8.8
+Nov 24 22:32:12 dnsmasq[75905]: query[A] ab.chatgpt.com from 10.7.23.11
+Nov 24 22:32:12 dnsmasq[75905]: forwarded ab.chatgpt.com to 8.8.8.8
+Nov 24 22:32:12 dnsmasq[75905]: reply ab.chatgpt.com is <HTTPS>
+Nov 24 22:32:12 dnsmasq[75905]: reply ab.chatgpt.com is 104.18.32.47
+Nov 24 22:32:12 dnsmasq[75905]: reply ab.chatgpt.com is 172.64.155.209
+Nov 24 22:32:13 dnsmasq[75905]: query[A] app.team1.test from 10.7.23.11
+Nov 24 22:32:13 dnsmasq[75905]: config app.team1.test is 10.7.6.136
+Nov 24 22:32:14 dnsmasq[75905]: query[HTTPS] gateway.fe2.apple-dns.net from 10.7.23.11
+Nov 24 22:32:14 dnsmasq[75905]: forwarded gateway.fe2.apple-dns.net to 8.8.8.8
+Nov 24 22:32:14 dnsmasq[75905]: query[A] gateway.fe2.apple-dns.net from 10.7.23.11
+Nov 24 22:32:14 dnsmasq[75905]: forwarded gateway.fe2.apple-dns.net to 8.8.8.8
+Nov 24 22:32:14 dnsmasq[75905]: reply gateway.fe2.apple-dns.net is <HTTPS>
+Nov 24 22:32:14 dnsmasq[75905]: reply gateway.fe2.apple-dns.net is 17.248.239.10
+Nov 24 22:32:14 dnsmasq[75905]: reply gateway.fe2.apple-dns.net is 17.248.239.64
+Nov 24 22:32:14 dnsmasq[75905]: reply gateway.fe2.apple-dns.net is 17.248.239.65
+Nov 24 22:32:17 dnsmasq[75905]: query[HTTPS] chat.openai.com from 10.7.23.11
+Nov 24 22:32:17 dnsmasq[75905]: cached chat.openai.com is <CNAME>
+Nov 24 22:32:17 dnsmasq[75905]: forwarded chat.openai.com to 8.8.8.8
+Nov 24 22:32:17 dnsmasq[75905]: query[A] chat.openai.com from 10.7.23.11
+Nov 24 22:32:17 dnsmasq[75905]: cached chat.openai.com is <CNAME>
+Nov 24 22:32:17 dnsmasq[75905]: cached chat.openai.com.cdn.cloudflare.net is 104.18.37.228
+Nov 24 22:32:17 dnsmasq[75905]: cached chat.openai.com.cdn.cloudflare.net is 172.64.150.28
+Nov 24 22:32:17 dnsmasq[75905]: reply chat.openai.com is <CNAME>
+Nov 24 22:32:17 dnsmasq[75905]: reply chat.openai.com.cdn.cloudflare.net is NODATA
+Nov 24 22:32:25 dnsmasq[75905]: query[HTTPS] ab.chatgpt.com from 10.7.23.11
+Nov 24 22:32:25 dnsmasq[75905]: forwarded ab.chatgpt.com to 8.8.8.8
+Nov 24 22:32:25 dnsmasq[75905]: query[A] ab.chatgpt.com from 10.7.23.11
+Nov 24 22:32:25 dnsmasq[75905]: cached ab.chatgpt.com is 104.18.32.47
+Nov 24 22:32:25 dnsmasq[75905]: cached ab.chatgpt.com is 172.64.155.209
+Nov 24 22:32:25 dnsmasq[75905]: reply ab.chatgpt.com is <HTTPS>
+Nov 24 22:32:29 dnsmasq[75905]: query[A] www.apple.com from 10.7.12.137
+Nov 24 22:32:29 dnsmasq[75905]: forwarded www.apple.com to 8.8.8.8
+Nov 24 22:32:29 dnsmasq[75905]: query[A] shed.dual-low.s-part-0040.t-0009.t-s1-msedge.net from 10.7.12.137
+Nov 24 22:32:29 dnsmasq[75905]: forwarded shed.dual-low.s-part-0040.t-0009.t-s1-msedge.net to 8.8.8.8
+Nov 24 22:32:29 dnsmasq[75905]: reply www.apple.com is <CNAME>
+Nov 24 22:32:29 dnsmasq[75905]: reply www-apple-com.v.aaplimg.com is <CNAME>
+Nov 24 22:32:29 dnsmasq[75905]: reply www.apple.com.edgekey.net is <CNAME>
+Nov 24 22:32:29 dnsmasq[75905]: reply e6858.dsce9.akamaiedge.net is 23.222.31.50
+Nov 24 22:32:29 dnsmasq[75905]: reply shed.dual-low.s-part-0040.t-0009.t-s1-msedge.net is <CNAME>
+Nov 24 22:32:29 dnsmasq[75905]: reply s-part-0040.t-0009.t-s1-msedge.net is 13.107.228.51
+Nov 24 22:32:30 dnsmasq[75905]: query[A] smoot-chickadee.v.aaplimg.com from 10.7.12.137
+Nov 24 22:32:30 dnsmasq[75905]: forwarded smoot-chickadee.v.aaplimg.com to 8.8.8.8
+Nov 24 22:32:30 dnsmasq[75905]: query[HTTPS] smoot-chickadee.v.aaplimg.com from 10.7.12.137
+Nov 24 22:32:30 dnsmasq[75905]: forwarded smoot-chickadee.v.aaplimg.com to 8.8.8.8
+Nov 24 22:32:30 dnsmasq[75905]: reply smoot-chickadee.v.aaplimg.com is NODATA
+Nov 24 22:32:31 dnsmasq[75905]: query[A] smoot-chickadee.v.aaplimg.com from 10.7.12.137
+Nov 24 22:32:31 dnsmasq[75905]: forwarded smoot-chickadee.v.aaplimg.com to 8.8.8.8
+Nov 24 22:32:31 dnsmasq[75905]: reply smoot-chickadee.v.aaplimg.com is 52.220.58.38
+Nov 24 22:32:31 dnsmasq[75905]: exiting on receipt of SIGTERM

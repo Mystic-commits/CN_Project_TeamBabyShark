@@ -1,0 +1,75 @@
+CN Phase 2 | Ansh | Live backend failover and recovery
+24 November 2026 | Team Wi-Fi
+
+The primary nginx edge at 10.7.6.136:8443 served both project hostnames.
+Each phase issued six trusted HTTPS requests per hostname through Mac 2.
+All 36 requests returned HTTP 200.
+
+Phase      IST       Backend A  Backend B
+Baseline   22:11:43          5          7
+Failover   22:17:49          0         12
+Recovery   22:22:01          5          7
+
+The direct connection to Backend A at 10.7.22.88:3001 was refused
+during failover. nginx then logged an attempted upstream status of 502
+for A followed by 200 from Backend B. After A restarted, both origins
+served requests again. These tests pinned Mac 2 and verified its CA and
+hostname. DNS migration is a separate test.
+
+--- baseline ---
+2026-11-24 22:11:43 +0530 | baseline | edge=10.7.6.136 A=10.7.22.88:3001 B=10.7.12.137:3002
+app.team1.test request 01 | HTTP 200 | X-Edge=edge | X-Backend=B
+app.team1.test request 02 | HTTP 200 | X-Edge=edge | X-Backend=B
+app.team1.test request 03 | HTTP 200 | X-Edge=edge | X-Backend=A
+app.team1.test request 04 | HTTP 200 | X-Edge=edge | X-Backend=B
+app.team1.test request 05 | HTTP 200 | X-Edge=edge | X-Backend=A
+app.team1.test request 06 | HTTP 200 | X-Edge=edge | X-Backend=B
+api.team1.test request 01 | HTTP 200 | X-Edge=edge | X-Backend=A
+api.team1.test request 02 | HTTP 200 | X-Edge=edge | X-Backend=B
+api.team1.test request 03 | HTTP 200 | X-Edge=edge | X-Backend=A
+api.team1.test request 04 | HTTP 200 | X-Edge=edge | X-Backend=B
+api.team1.test request 05 | HTTP 200 | X-Edge=edge | X-Backend=A
+api.team1.test request 06 | HTTP 200 | X-Edge=edge | X-Backend=B
+Backend A=5 | Backend B=7
+PASS baseline
+
+--- failover ---
+2026-11-24 22:17:49 +0530 | failover | edge=10.7.6.136 A=10.7.22.88:3001 B=10.7.12.137:3002
+app.team1.test request 01 | HTTP 200 | X-Edge=edge | X-Backend=B
+app.team1.test request 02 | HTTP 200 | X-Edge=edge | X-Backend=B
+app.team1.test request 03 | HTTP 200 | X-Edge=edge | X-Backend=B
+app.team1.test request 04 | HTTP 200 | X-Edge=edge | X-Backend=B
+app.team1.test request 05 | HTTP 200 | X-Edge=edge | X-Backend=B
+app.team1.test request 06 | HTTP 200 | X-Edge=edge | X-Backend=B
+api.team1.test request 01 | HTTP 200 | X-Edge=edge | X-Backend=B
+api.team1.test request 02 | HTTP 200 | X-Edge=edge | X-Backend=B
+api.team1.test request 03 | HTTP 200 | X-Edge=edge | X-Backend=B
+api.team1.test request 04 | HTTP 200 | X-Edge=edge | X-Backend=B
+api.team1.test request 05 | HTTP 200 | X-Edge=edge | X-Backend=B
+api.team1.test request 06 | HTTP 200 | X-Edge=edge | X-Backend=B
+Backend A=0 | Backend B=12
+PASS failover
+
+--- recovery ---
+2026-11-24 22:22:01 +0530 | recovery | edge=10.7.6.136 A=10.7.22.88:3001 B=10.7.12.137:3002
+app.team1.test request 01 | HTTP 200 | X-Edge=edge | X-Backend=B
+app.team1.test request 02 | HTTP 200 | X-Edge=edge | X-Backend=B
+app.team1.test request 03 | HTTP 200 | X-Edge=edge | X-Backend=A
+app.team1.test request 04 | HTTP 200 | X-Edge=edge | X-Backend=B
+app.team1.test request 05 | HTTP 200 | X-Edge=edge | X-Backend=A
+app.team1.test request 06 | HTTP 200 | X-Edge=edge | X-Backend=B
+api.team1.test request 01 | HTTP 200 | X-Edge=edge | X-Backend=A
+api.team1.test request 02 | HTTP 200 | X-Edge=edge | X-Backend=B
+api.team1.test request 03 | HTTP 200 | X-Edge=edge | X-Backend=A
+api.team1.test request 04 | HTTP 200 | X-Edge=edge | X-Backend=B
+api.team1.test request 05 | HTTP 200 | X-Edge=edge | X-Backend=A
+api.team1.test request 06 | HTTP 200 | X-Edge=edge | X-Backend=B
+Backend A=5 | Backend B=7
+PASS recovery
+
+--- nginx retry evidence ---
+nginx access log during live failover
+2026-11-24T22:17:49+05:30 client=10.7.6.136 status=200 upstream=10.7.22.88:3001, 10.7.12.137:3002 upstream_status=502, 200
+
+nginx error log during live failover
+2026/11/24 22:17:49 [error] 21539#0: *54 kevent() reported that connect() failed (61: Connection refused) while connecting to upstream, client: 10.7.6.136, server: app.team1.test, request: "GET /api/status HTTP/1.1", upstream: "http://10.7.22.88:3001/api/status", host: "app.team1.test:8443"

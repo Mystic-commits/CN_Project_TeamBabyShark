@@ -1,0 +1,46 @@
+DNS TTL and manual flush - measured second trial
+Client caching resolver: 127.0.0.1:1053; authoritative source: primary DNS on port 53.
+macOS resolver observations are listed separately.
+
+Client-side caching resolver: 127.0.0.1:1053, upstream primary, distinct process/cache.
+Temporary test: only primary DNS selected on this client to control resolver choice. Both project DNS servers continue serving app.team1.test.
+dnsmasq: syntax check OK.
+Warm system cache: expected old edge address
+2026-11-24T17:09:41Z
+ttl.team1.test.		30	IN	A	10.7.6.136
+OS resolver: ['10.7.6.136']
+dnsmasq: syntax check OK.
+Authoritative query should show new address with TTL 30
+ttl.team1.test.		30	IN	A	10.7.23.11
+OS cache immediately after record change (record actual behavior)
+2026-11-24T17:09:42Z
+ttl.team1.test.		29	IN	A	10.7.6.136
+OS resolver: ['10.7.6.136']
+After 5 seconds
+2026-11-24T17:09:47Z
+ttl.team1.test.		24	IN	A	10.7.6.136
+OS resolver: ['10.7.6.136']
+After 15 seconds
+2026-11-24T17:09:57Z
+ttl.team1.test.		13	IN	A	10.7.6.136
+OS resolver: ['10.7.6.136']
+After 33 seconds
+2026-11-24T17:10:16Z
+ttl.team1.test.		30	IN	A	10.7.23.11
+OS resolver: ['10.7.6.136']
+If macOS still retained an older answer, explicitly refresh it while authoritative answer is new
+2026-11-24T17:10:17Z
+ttl.team1.test.		29	IN	A	10.7.23.11
+OS resolver: ['10.7.23.11']
+Manual flush experiment: server is changed back to old address
+dnsmasq: syntax check OK.
+Before manual flush
+2026-11-24T17:10:17Z
+ttl.team1.test.		29	IN	A	10.7.23.11
+OS resolver: ['10.7.23.11']
+After manual flush
+2026-11-24T17:10:18Z
+ttl.team1.test.		30	IN	A	10.7.6.136
+OS resolver: ['10.7.6.136']
+Restoring original project DNS config and dual client DNS configuration
+dnsmasq: syntax check OK.

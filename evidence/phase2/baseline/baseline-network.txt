@@ -1,0 +1,197 @@
+$ dig +time=2 +tries=1 @10.7.23.11 app.team1.test
+
+; <<>> DiG 9.10.6 <<>> +time=2 +tries=1 @10.7.23.11 app.team1.test
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 44644
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+;; QUESTION SECTION:
+;app.team1.test.			IN	A
+
+;; ANSWER SECTION:
+app.team1.test.		30	IN	A	10.7.6.136
+
+;; Query time: 4 msec
+;; SERVER: 10.7.23.11#53(10.7.23.11)
+;; WHEN: Tue Nov 24 22:29:02 IST 2026
+;; MSG SIZE  rcvd: 59
+
+
+
+exit=0
+$ dig +time=2 +tries=1 @10.7.12.137 app.team1.test
+
+; <<>> DiG 9.10.6 <<>> +time=2 +tries=1 @10.7.12.137 app.team1.test
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 47531
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+;; QUESTION SECTION:
+;app.team1.test.			IN	A
+
+;; ANSWER SECTION:
+app.team1.test.		30	IN	A	10.7.6.136
+
+;; Query time: 19 msec
+;; SERVER: 10.7.12.137#53(10.7.12.137)
+;; WHEN: Tue Nov 24 22:29:02 IST 2026
+;; MSG SIZE  rcvd: 59
+
+
+
+exit=0
+$ curl --max-time 5 -sS -i https://app.team1.test:8443/api/status
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 16:59:02 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 29
+Connection: keep-alive
+X-Powered-By: Express
+Cache-Control: max-age=60
+ETag: "A-v1"
+X-Backend: A
+X-Edge: edge
+
+{"backend":"A","status":"ok"}
+
+exit=0
+$ curl --max-time 5 -sS -i https://app.team1.test:8443/api/status
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 16:59:02 GMT
+Content-Type: application/json
+Content-Length: 30
+Connection: keep-alive
+Cache-Control: max-age=60
+ETag: "B-v1"
+X-Backend: B
+X-Edge: edge
+
+{"backend":"B","status":"ok"}
+
+
+exit=0
+$ curl --max-time 5 -sS -i https://app.team1.test:8443/api/status
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 16:59:03 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 29
+Connection: keep-alive
+X-Powered-By: Express
+Cache-Control: max-age=60
+ETag: "A-v1"
+X-Backend: A
+X-Edge: edge
+
+{"backend":"A","status":"ok"}
+
+exit=0
+$ curl --max-time 5 -sS -i https://app.team1.test:8443/api/status
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 16:59:03 GMT
+Content-Type: application/json
+Content-Length: 30
+Connection: keep-alive
+Cache-Control: max-age=60
+ETag: "B-v1"
+X-Backend: B
+X-Edge: edge
+
+{"backend":"B","status":"ok"}
+
+
+exit=0
+$ curl --max-time 5 -sS -i https://app.team1.test:8443/api/status
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 16:59:03 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 29
+Connection: keep-alive
+X-Powered-By: Express
+Cache-Control: max-age=60
+ETag: "A-v1"
+X-Backend: A
+X-Edge: edge
+
+{"backend":"A","status":"ok"}
+
+exit=0
+$ curl --max-time 5 -sS -i https://app.team1.test:8443/api/status
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 16:59:03 GMT
+Content-Type: application/json
+Content-Length: 30
+Connection: keep-alive
+Cache-Control: max-age=60
+ETag: "B-v1"
+X-Backend: B
+X-Edge: edge
+
+{"backend":"B","status":"ok"}
+
+
+exit=0
+$ curl --max-time 5 --tls-max 1.2 -sS -i https://app.team1.test:8443/api/status
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 16:59:03 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 29
+Connection: keep-alive
+X-Powered-By: Express
+Cache-Control: max-age=60
+ETag: "A-v1"
+X-Backend: A
+X-Edge: edge
+
+{"backend":"A","status":"ok"}
+
+exit=0
+$ curl --max-time 5 -sS -i https://app.team1.test:8443/api/cached
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 16:59:03 GMT
+Content-Type: application/json
+Content-Length: 29
+Connection: keep-alive
+Cache-Control: max-age=60
+ETag: "v1"
+X-Backend: B
+X-Edge: edge
+
+{"data":"cacheable content"}
+
+
+exit=0
+$ curl --max-time 5 -sS -i -H If-None-Match: "v1" https://app.team1.test:8443/api/cached
+HTTP/1.1 304 Not Modified
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 16:59:03 GMT
+Connection: keep-alive
+X-Powered-By: Express
+ETag: "v1"
+Cache-Control: max-age=60
+X-Backend: A
+X-Edge: edge
+
+
+
+exit=0
+Capturing on 'Wi-Fi: en0' and 'Loopback: lo0'
+File: /Users/Mystic/Documents/Codex/2026-11-24/w/outputs/baseline-network.pcapng
+Packets: 31 Packets: 79 Packets: 1105 Packets: 1241 Packets: 1356 Packets: 1479 Packets: 1543 Packets: 1585 Packets: 1597 Packets: 1602 Packets: 1633 Packets: 1659 Packets: 1685 Packets: 1704 Packets: 1747 Packets: 1777 Packets: 1808 Packets: 1811 Packets: 2037 Packets: 2061 Packets: 2071 Packets: 2089 Packets: 2129 Packets: 2159 Packets: 2180 Packets: 2211 Packets: 2263 Packets: 2271 Packets: 2294 Packets: 2343 Packets: 2381 Packets: 2424 Packets: 2426 Packets: 2469 Packets: 2479 Packets: 2530 Packets: 2553 Packets: 2558 Packets: 2604 Packets: 2650 Packets: 2688 Packets: 2690 Packets captured: 2690
+Packets received/dropped on interface 'Wi-Fi: en0': 2670/232 (pcap:0/dumpcap:222/flushed:10/ps_ifdrop:0) (92.0%)
+Packets received/dropped on interface 'Loopback: lo0': 20/0 (pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0) (100.0%)
