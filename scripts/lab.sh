@@ -13,9 +13,9 @@ if [ "$ROLE" = configure ] || [ ! -f "$LAB/network.env" ]; then
   echo "This Mac current Wi-Fi IP: $(ipconfig getifaddr en0 || true)"
   echo 'Defaults are historical repo addresses except Mac 1. Confirm/update them.'
   read -r -p 'Mac 1 / Yug [10.7.23.11]: ' M1; M1=${M1:-10.7.23.11}
-  read -r -p 'Mac 2 / Ansh [10.7.18.79]: ' M2; M2=${M2:-10.7.18.79}
-  read -r -p 'Mac 3 / Ishita [10.7.17.218]: ' M3; M3=${M3:-10.7.17.218}
-  read -r -p 'Mac 4 / Aditya [10.7.31.47]: ' M4; M4=${M4:-10.7.31.47}
+  read -r -p 'Mac 2 / Ansh [10.7.6.136]: ' M2; M2=${M2:-10.7.6.136}
+  read -r -p 'Mac 3 / Ishita [10.7.22.88]: ' M3; M3=${M3:-10.7.22.88}
+  read -r -p 'Mac 4 / Aditya [10.7.12.137]: ' M4; M4=${M4:-10.7.12.137}
   for value in "$M1" "$M2" "$M3" "$M4"; do
     if ! [[ "$value" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]]; then echo 'Invalid IPv4 input'; exit 1; fi
     IFS=. read -r a b c d <<< "$value"
