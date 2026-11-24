@@ -29,7 +29,7 @@ echo "$COND_RESPONSE" | grep -E -i "HTTP/|ETag|Cache-Control|X-Backend"
 STATUS_CODE=$(echo "$COND_RESPONSE" | head -n1 | awk '{print $2}')
 if [ "$STATUS_CODE" != "304" ]; then
   echo "[FAIL] expected 304, got $STATUS_CODE"
-  echo "Retry against one origin: URL=http://10.7.31.47:3002/api/cached $0"
+  echo "Inspect edge and backend logs; direct-origin requests may be blocked by isolation."
   exit 1
 fi
 

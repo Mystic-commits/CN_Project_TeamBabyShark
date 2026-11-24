@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-DOMAIN="app.team1.test"
-EXPECTED_IP="10.7.18.79"
-DNS="10.7.19.196"
+DOMAIN="${DOMAIN:-app.team1.test}"
+EXPECTED_IP="${EXPECTED_IP:-10.7.6.136}"
+DNS="${DNS:-10.7.23.11}"
 
 echo "=== DNS RESOLUTION TEST ==="
 echo "Domain: $DOMAIN"

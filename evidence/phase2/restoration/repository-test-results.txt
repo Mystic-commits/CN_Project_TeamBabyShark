@@ -1,0 +1,106 @@
+$ bash tests/dns-test.sh
+=== DNS RESOLUTION TEST ===
+Domain: app.team1.test
+Expected A record: 10.7.6.136 via 10.7.23.11
+
+1. Query team DNS directly
+Resolved: 10.7.6.136
+[PASS] authoritative answer from Mac 1
+
+2. Flags / ANSWER section
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+;; QUESTION SECTION:
+;app.team1.test.			IN	A
+--
+;; ANSWER SECTION:
+app.team1.test.		30	IN	A	10.7.6.136
+
+
+=== DNS TEST PASSED ===
+
+
+Exit: 0
+$ bash tests/https-test.sh
+=== HTTPS TEST ===
+URL: https://app.team1.test:8443/api/status
+Do not pass -k. The client must trust the mkcert/OpenSSL CA.
+
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 17:35:09 GMT
+Content-Type: application/json
+Content-Length: 30
+Connection: keep-alive
+Cache-Control: max-age=60
+ETag: "B-v1"
+X-Backend: B
+X-Edge: edge
+
+{"backend":"B","status":"ok"}
+
+=== HTTPS TEST PASSED ===
+
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100    30  100    30    0     0     75      0 --:--:-- --:--:-- --:--:--    75
+
+Exit: 0
+$ bash tests/load-balancing-test.sh
+=== LOAD BALANCING TEST ===
+URL: https://app.team1.test:8443/api/status
+
+Request 01: X-Backend: A
+Request 02: X-Backend: B
+Request 03: X-Backend: A
+Request 04: X-Backend: B
+Request 05: X-Backend: A
+Request 06: X-Backend: B
+Request 07: X-Backend: A
+Request 08: X-Backend: B
+Request 09: X-Backend: A
+Request 10: X-Backend: B
+Request 11: X-Backend: A
+Request 12: X-Backend: B
+Request 13: X-Backend: A
+Request 14: X-Backend: B
+Request 15: X-Backend: A
+Request 16: X-Backend: B
+Request 17: X-Backend: A
+Request 18: X-Backend: B
+Request 19: X-Backend: A
+Request 20: X-Backend: B
+
+Backend A responses: 10
+Backend B responses: 10
+
+=== LOAD BALANCING TEST PASSED ===
+
+
+Exit: 0
+$ bash tests/caching-test.sh
+=== TASK F: HTTP CACHING TEST ===
+URL: https://app.team1.test:8443/api/cached
+
+HTTP/1.1 200 OK
+Cache-Control: max-age=60
+ETag: "v1"
+X-Backend: A
+
+Observed ETag: "v1"
+
+Conditional request If-None-Match: "v1"
+HTTP/1.1 304 NOT MODIFIED
+ETag: "v1"
+Cache-Control: max-age=60
+X-Backend: B
+
+=== HTTP CACHING TEST PASSED ===
+
+
+Exit: 0
