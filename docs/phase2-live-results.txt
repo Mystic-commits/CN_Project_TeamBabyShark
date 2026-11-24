@@ -127,8 +127,9 @@ Remaining evaluation activity: faculty-injected fault, individual viva, and show
 original firewall rollback requested by the evaluator. Full pairwise LAN inventory for
 other machines and full original-firewall rollback were not independently witnessed here.
 
-FINAL RULE AUDIT NOTE
-Mac 1 blocking is verified on both backends. Ishita supplied final rules allowing only Ansh.
-Aditya previously allowed Mac 3 as another standby candidate; final removal of that extra
-allowance is awaiting his rules dump. Strict Mac-2-only policy cannot be asserted from
-a Mac-1-only connectivity test. Remove obsolete standby allowances after migration.
+FINAL RULE AUDIT
+Both backend owners supplied final rules permitting only Ansh 10.7.6.136 to their backend
+port, followed by a catch-all drop on that port. Aditya's final active dump contains no
+Yug or Ishita exceptions. Mac 1 direct requests time out; normal trusted HTTPS through
+Ansh passes. Migration firewall exceptions are removed and the baseline policy restored.
+Source: teammate-supplied active rules plus locally recorded connectivity checks.

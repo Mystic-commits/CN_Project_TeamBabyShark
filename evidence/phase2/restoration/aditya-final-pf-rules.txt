@@ -1,0 +1,11 @@
+Source: Aditya final active pf rules supplied in chat, 24 November 2026.
+anchor "com.apple/*" all {
+  anchor "200.AirDrop/*" all {
+  }
+  anchor "250.ApplicationFirewall/*" all {
+  }
+  anchor "cn_team_babyshark" all {
+    pass in quick on en0 inet proto tcp from 10.7.6.136 to 10.7.12.137 port = 3002 flags S/SA keep state
+    block drop in quick on en0 inet proto tcp from any to 10.7.12.137 port = 3002
+  }
+}
