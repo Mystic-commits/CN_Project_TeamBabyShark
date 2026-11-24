@@ -444,6 +444,8 @@ The platform underwent deliberate fault injection and resolved real-world lab an
 
 ## 9. Phase 2: Harden, Recover, and Troubleshoot
 
+**Verification status:** The following descriptions are configuration proposals, not proof that Phase 2 has been demonstrated. See [the audited A-F checklist](docs/phase2-plan.md) for remaining work, measurement caveats and required evidence, and [the multiple-PC guide](docs/multiple-pcs.md) for machine roles and Git synchronization.
+
 ### Extension A: Backup DNS Resolver and High Availability
 - **Architecture**: A secondary `dnsmasq` instance is deployed on Mac 4 (`10.7.31.47`) with identical zone records.
 - **Client Configuration**: Clients are configured with dual DNS resolvers:
@@ -482,7 +484,11 @@ The platform underwent deliberate fault injection and resolved real-world lab an
   2. BGP Anycast routing directing traffic to the nearest surviving edge router.
   3. DNS round-robin across multiple public edge IP addresses.
 
-### Extension E: Systematic Layer-by-Layer Troubleshooting Framework
+### Extension E: Controlled Edge Migration (DNS-Based Cutover)
+
+Prepare standby nginx on Mac 3 or Mac 4, verify trusted HTTPS and backend reachability (including firewall permissions), then change project records on both DNS servers. Show old cached answers versus new lookups and recovery after TTL expiry. Restore DNS and firewall configuration after the demo. This extension still requires implementation and evidence; see [the Phase 2 plan](docs/phase2-plan.md).
+
+### Extension F: Systematic Layer-by-Layer Troubleshooting Framework
 When diagnosing any unknown network failure, Team Baby Shark follows a strict deterministic bottom-up protocol audit:
 
 ```
