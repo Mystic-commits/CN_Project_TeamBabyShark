@@ -1,0 +1,94 @@
+TEAM BABY SHARK: TWO-HOUR LAB
+
+These scripts are prepared for macOS. Live four-Mac results are NOT yet verified.
+All four Macs must remain on the same Wi-Fi and awake.
+Unzip, open Terminal, type cd followed by a space, drag this folder into Terminal, press Enter.
+Then run: bash scripts/lab.sh configure
+Each person sees their CURRENT IP. Share it with Yug immediately.
+Enter the same four CURRENT IPs on every machine. Historical defaults may be wrong.
+Yug current IP when prepared: 10.7.23.11.
+
+ANSH / MAC 2
+1. bash scripts/lab.sh configure
+2. bash scripts/lab.sh edge
+3. Leave terminal running. AirDrop .lab/edge-rootCA.pem to Yug and Aditya.
+   Finder: Cmd+Shift+G, paste the project folder path followed by /.lab
+   Send only the named rootCA.pem, never any private key.
+4. In a second Terminal from this folder:
+   curl -i http://MAC3_CURRENT_IP:3001/api/status
+   curl -i http://MAC4_CURRENT_IP:3002/api/status
+5. During failure demo, show .lab/edge/logs/access.log and error.log.
+   Stop nginx only when directed: Ctrl+C in its service terminal.
+
+ISHITA / MAC 3
+1. bash scripts/lab.sh configure
+2. bash scripts/lab.sh backend-a
+3. Leave terminal running. In second Terminal, same project folder:
+   bash scripts/lab.sh standby
+4. AirDrop .lab/standby-rootCA.pem to Yug and Aditya.
+5. AFTER baseline works, in third Terminal:
+   bash scripts/isolation.sh apply 3001
+6. Stop Backend A with Ctrl+C ONLY in its backend terminal for failure demo.
+   Restart: bash scripts/lab.sh backend-a
+7. Restore firewall at end: bash scripts/isolation.sh restore
+
+ADITYA / MAC 4
+1. bash scripts/lab.sh configure
+2. bash scripts/lab.sh backend-b
+3. Second Terminal, same folder: bash scripts/lab.sh dns
+   Enter administrator password locally. Leave running.
+4. Third Terminal: trust BOTH downloaded CA files:
+   bash scripts/lab.sh trust /actual/path/to/edge-rootCA.pem
+   bash scripts/lab.sh trust /actual/path/to/standby-rootCA.pem
+   Use drag-and-drop into Terminal to insert each downloaded file path.
+5. bash scripts/lab.sh client
+6. bash scripts/lab.sh demo
+7. AFTER baseline works: bash scripts/isolation.sh apply 3002
+8. Restore firewall at end: bash scripts/isolation.sh restore
+
+YUG / MAC 1
+1. bash scripts/lab.sh configure
+2. bash scripts/lab.sh dns
+3. Second Terminal: trust BOTH CA files using the trust commands above.
+4. bash scripts/lab.sh client
+5. bash scripts/lab.sh demo
+
+TIME PLAN
+00-15: Share current IPs, unzip, configure, start both backends and primary edge.
+15-30: Start both DNS servers, distribute/trust CA, configure clients, verify HTTPS and A+B.
+30-45: Record DNS/TCP/TLS capture, HTTP headers and 304; start standby edge and trust its CA.
+45-60: Stop A; prove B-only success; restart A; prove A+B recovery.
+60-75: Apply backend isolation. From Mac 1 direct backend ports must fail; edge must work.
+75-90: Stop primary DNS with Ctrl+C; flush client cache; prove backup query with capture and HTTPS.
+       Restart primary DNS afterwards.
+90-105: DNS TTL and edge cutover, steps below.
+105-120: Practise injected fault, restore baseline, collect evidence and write results.
+All extensions remain required. This is a suggested schedule, not a guarantee of completion.
+
+DNS TTL / CUTOVER (ON BOTH MAC 1 AND MAC 4)
+Verify standby nginx first; both edge CA certificates trusted; standby can reach origins.
+Warm client DNS while primary edge is selected; start packet capture.
+Run: bash scripts/lab.sh cutover
+Ctrl+C each DNS service and rerun: bash scripts/lab.sh dns
+Direct dig @each-server must return Mac 3. Compare cached client vs fresh DNS query.
+Use fresh curl requests and show X-Edge: standby after expiry; don't flush until TTL behavior is recorded.
+Then demonstrate manual cache flushing separately.
+Mac 1 and Mac 4 each restore with: bash scripts/lab.sh restore-edge
+Ctrl+C and rerun their DNS services. Verify X-Edge: edge after caches expire/flush.
+
+EVIDENCE / VALIDATION
+Demo logs are in .lab/demo-TIMESTAMP.txt. They record actual results; inspect every error.
+Wireshark client filter: dns || tcp.port == 8443
+A cached success is not backup DNS proof. Capture a fresh query to Mac 4 with Mac 1 DNS stopped.
+DNS TTL does not migrate existing TCP connections.
+Use only trusted HTTPS for final demonstration; no curl -k.
+Firewall script refuses if required parent anchor is missing. Do not force global pf reloads.
+Save rollback proof. Restore original client DNS settings from .lab/original-dns.txt.
+If original settings were automatic: sudo networksetup -setdnsservers Wi-Fi Empty
+
+KNOWN CACHE CORRECTNESS ISSUE IN ORIGINAL CODE
+/api/cached uses ETag v1 on both backends but includes a different backend value in its body.
+Before a rigorous cache demonstration, make cached response bodies identical or use distinct validators.
+The shared cache body is corrected in this prepared package; X-Backend still identifies each origin.
+
+No remote push has been performed. Each teammate should use their own Git identity.
