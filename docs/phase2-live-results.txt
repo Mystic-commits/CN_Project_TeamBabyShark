@@ -75,14 +75,23 @@ of failure until an edge migration is deliberately performed.
 Learning: nginx can retry an unavailable origin and later return it to load balancing.
 Evidence: Ansh-Mac2-Failover-Recovery.txt (received from Ansh, not independently witnessed).
 
-EXTENSION E - EDGE MIGRATION: PREPARED, NOT YET VERIFIED
-Standby nginx is running on Mac 1 with SANs for app.team1.test and api.team1.test.
-Both origins were reachable after the migration firewall exceptions were updated.
-A direct preparation check used --resolve plus trusted certificate validation and returned
-200 with X-Edge standby-mac1. This is a preparation check, not proof of DNS cutover.
-Both backends now allow Mac 1 during migration; both DNS servers must then point app/api
-to Mac 1. Capture old cache vs new server answers, fresh hostname requests to standby,
-and restore DNS plus baseline firewall rules after the demonstration.
+EXTENSION E - EDGE MIGRATION: LIVE CUTOVER VERIFIED, REMOTE RESTORATION PENDING
+Independent standby nginx runs on Mac 1 (10.7.23.11), separate from Ansh's active edge.
+Both backends permitted Mac 1 during this experiment. The standby has certificate SANs
+for both project names; certificate validation was enabled throughout, without -k.
+Aditya changed backup DNS app/api records to 10.7.23.11; both names were independently
+queried and confirmed. The recorder warmed the client cache with Ansh's active address,
+then updated primary DNS too. Direct queries to BOTH servers returned 10.7.23.11 / TTL 30.
+An immediate cached-client request still reached 10.7.6.136 with X-Edge edge / HTTP 200.
+After manually flushing the OS cache, four fresh hostname requests reached 10.7.23.11
+with X-Edge standby-mac1 and backends B, A, B, A, each HTTP 200. No --resolve was used
+for these integrated cutover requests; --resolve was used only for the preflight check.
+Root-run recorder requests used an explicit public trust bundle to validate both certificates.
+Primary DNS was restored to 10.7.6.136 automatically. Awaiting Aditya's backup restoration
+and the two backends' baseline firewall restoration before marking final cleanup complete.
+Learning: DNS cutover changes future lookups, not cached answers or existing connections;
+standby TLS trust and origin firewall permissions are both required for a working migration.
+Evidence: edge-cutover.txt and edge-cutover.pcapng; standby-preflight.txt.
 
 EXTENSION F - TROUBLESHOOTING: REHEARSAL VERIFIED
 A deliberately wrong destination port 9443 failed while DNS was correct, 8443 accepted TCP,
@@ -98,6 +107,7 @@ FINAL HANDOFF CHECKLIST
 [verified] Controlled client TTL expiry and OS/manual cache flush evidence.
 [verified] Both backend ports blocked from Mac 1 while edge serves requests.
 [documented] Ansh's backend stop/restart failure evidence, 36 successful requests.
-[needed] Both DNS records switched to standby and restored; firewall exception restored.
+[verified] Both DNS servers switched; old cached edge and fresh standby traffic demonstrated.
+[pending cleanup] Backup DNS restored to Ansh and temporary firewall exception removed.
 [needed] Each backend's firewall rollback evidence.
 [needed at evaluation] Faculty-injected troubleshooting and individual viva.

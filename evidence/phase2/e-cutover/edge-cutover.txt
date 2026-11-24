@@ -1,0 +1,159 @@
+Tue Nov 24 17:28:05 UTC 2026
+Preflight: both origins must allow Mac 1 during migration.
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    29  100    29    0     0    298      0 --:--:-- --:--:-- --:--:--   298
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Cache-Control: max-age=60
+ETag: "A-v1"
+X-Backend: A
+Content-Length: 29
+Date: Tue, 24 Nov 2026 17:28:05 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"backend":"A","status":"ok"}  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    30  100    30    0     0    963      0 --:--:-- --:--:-- --:--:--   967
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.9 Python/3.13.5
+Date: Tue, 24 Nov 2026 17:28:05 GMT
+Content-Type: application/json
+Content-Length: 30
+Cache-Control: max-age=60
+ETag: "B-v1"
+X-Backend: B
+Connection: close
+
+{"backend":"B","status":"ok"}
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0100    29  100    29    0     0     27      0  0:00:01  0:00:01 --:--:--    27
+HTTP/1.1 200 OK
+Server: nginx/1.31.10
+Date: Tue, 24 Nov 2026 17:28:06 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 29
+Connection: keep-alive
+X-Powered-By: Express
+Cache-Control: max-age=60
+ETag: "A-v1"
+X-Backend: A
+X-Edge: standby-mac1
+
+{"backend":"A","status":"ok"}READY: waiting up to 5 minutes for Aditya backup DNS to point to Mac 1.
+Warm cached old primary answer and show active edge
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    30  100    30    0     0    314      0 --:--:-- --:--:-- --:--:--   315
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 17:28:08 GMT
+Content-Type: application/json
+Content-Length: 30
+Connection: keep-alive
+Cache-Control: max-age=60
+ETag: "B-v1"
+X-Backend: B
+X-Edge: edge
+
+{"backend":"B","status":"ok"}
+
+remote_ip=10.7.6.136
+dnsmasq: syntax check OK.
+Both DNS servers now authoritative for standby edge
+app.team1.test.		30	IN	A	10.7.23.11
+app.team1.test.		30	IN	A	10.7.23.11
+Immediate cached client observation; measure rather than assume old address
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    29  100    29    0     0     67      0 --:--:-- --:--:-- --:--:--    67
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 17:28:09 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 29
+Connection: keep-alive
+X-Powered-By: Express
+Cache-Control: max-age=60
+ETag: "A-v1"
+X-Backend: A
+X-Edge: edge
+
+{"backend":"A","status":"ok"}
+remote_ip=10.7.6.136
+Flush cache and demonstrate fresh domain-based traffic to standby
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    30  100    30    0     0    514      0 --:--:-- --:--:-- --:--:--   517
+HTTP/1.1 200 OK
+Server: nginx/1.31.10
+Date: Tue, 24 Nov 2026 17:28:11 GMT
+Content-Type: application/json
+Content-Length: 30
+Connection: keep-alive
+Cache-Control: max-age=60
+ETag: "B-v1"
+X-Backend: B
+X-Edge: standby-mac1
+
+{"backend":"B","status":"ok"}
+
+remote_ip=10.7.23.11
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    29  100    29    0     0   1416      0 --:--:-- --:--:-- --:--:--  1450
+HTTP/1.1 200 OK
+Server: nginx/1.31.10
+Date: Tue, 24 Nov 2026 17:28:11 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 29
+Connection: keep-alive
+X-Powered-By: Express
+Cache-Control: max-age=60
+ETag: "A-v1"
+X-Backend: A
+X-Edge: standby-mac1
+
+{"backend":"A","status":"ok"}
+remote_ip=10.7.23.11
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    30  100    30    0     0    941      0 --:--:-- --:--:-- --:--:--   937100    30  100    30    0     0    939      0 --:--:-- --:--:-- --:--:--   937
+HTTP/1.1 200 OK
+Server: nginx/1.31.10
+Date: Tue, 24 Nov 2026 17:28:11 GMT
+Content-Type: application/json
+Content-Length: 30
+Connection: keep-alive
+Cache-Control: max-age=60
+ETag: "B-v1"
+X-Backend: B
+X-Edge: standby-mac1
+
+{"backend":"B","status":"ok"}
+
+remote_ip=10.7.23.11
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    29  100    29    0     0    192      0 --:--:-- --:--:-- --:--:--   193
+HTTP/1.1 200 OK
+Server: nginx/1.31.10
+Date: Tue, 24 Nov 2026 17:28:11 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 29
+Connection: keep-alive
+X-Powered-By: Express
+Cache-Control: max-age=60
+ETag: "A-v1"
+X-Backend: A
+X-Edge: standby-mac1
+
+{"backend":"A","status":"ok"}
+remote_ip=10.7.23.11
+RESTORING PRIMARY RECORDS. Aditya should now run backup-dns-switch.sh primary.
+dnsmasq: syntax check OK.
+app.team1.test.		30	IN	A	10.7.6.136
+Primary restored; backup restoration and firewall baseline restoration still need external confirmation.
