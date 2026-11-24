@@ -133,3 +133,12 @@ port, followed by a catch-all drop on that port. Aditya's final active dump cont
 Yug or Ishita exceptions. Mac 1 direct requests time out; normal trusted HTTPS through
 Ansh passes. Migration firewall exceptions are removed and the baseline policy restored.
 Source: teammate-supplied active rules plus locally recorded connectivity checks.
+
+ISHITA FIREWALL FILES COLLECTED
+mac3-current.rules permits only 10.7.6.136 -> 10.7.22.88:3001, then drops all other
+incoming TCP connections to that backend port on en0. No standby exceptions remain.
+mac3-pf.conf.backup is her saved main PF configuration and preserves the default macOS
+com.apple/* anchor structure. Both files are included in configs/phase2/.
+The main PF backup is not a snapshot of dynamic child anchors or PF state/reference
+counts. A full restoration demonstration remains distinct from possessing this backup;
+no full pre-project firewall restoration was independently witnessed in this session.
