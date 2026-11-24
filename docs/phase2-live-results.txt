@@ -75,7 +75,7 @@ of failure until an edge migration is deliberately performed.
 Learning: nginx can retry an unavailable origin and later return it to load balancing.
 Evidence: Ansh-Mac2-Failover-Recovery.txt (received from Ansh, not independently witnessed).
 
-EXTENSION E - EDGE MIGRATION: LIVE CUTOVER VERIFIED, REMOTE RESTORATION PENDING
+EXTENSION E - EDGE MIGRATION: LIVE CUTOVER AND BASELINE RESTORATION VERIFIED
 Independent standby nginx runs on Mac 1 (10.7.23.11), separate from Ansh's active edge.
 Both backends permitted Mac 1 during this experiment. The standby has certificate SANs
 for both project names; certificate validation was enabled throughout, without -k.
@@ -87,8 +87,11 @@ After manually flushing the OS cache, four fresh hostname requests reached 10.7.
 with X-Edge standby-mac1 and backends B, A, B, A, each HTTP 200. No --resolve was used
 for these integrated cutover requests; --resolve was used only for the preflight check.
 Root-run recorder requests used an explicit public trust bundle to validate both certificates.
-Primary DNS was restored to 10.7.6.136 automatically. Awaiting Aditya's backup restoration
-and the two backends' baseline firewall restoration before marking final cleanup complete.
+Primary DNS was restored automatically. Aditya restored backup DNS; all four app/api
+queries against both DNS servers returned Ansh 10.7.6.136. Both origin ports again timed
+out from Mac 1, while eight ordinary trusted HTTPS requests returned A=4/B=4, all 200.
+The cache endpoint again returned 200 then 304. Mac 1 standby nginx was stopped after
+verification; its configuration and certificate remain available for another demonstration.
 Learning: DNS cutover changes future lookups, not cached answers or existing connections;
 standby TLS trust and origin firewall permissions are both required for a working migration.
 Evidence: edge-cutover.txt and edge-cutover.pcapng; standby-preflight.txt.
@@ -108,6 +111,18 @@ FINAL HANDOFF CHECKLIST
 [verified] Both backend ports blocked from Mac 1 while edge serves requests.
 [documented] Ansh's backend stop/restart failure evidence, 36 successful requests.
 [verified] Both DNS servers switched; old cached edge and fresh standby traffic demonstrated.
-[pending cleanup] Backup DNS restored to Ansh and temporary firewall exception removed.
-[needed] Each backend's firewall rollback evidence.
+[verified] Backup DNS restored to Ansh and temporary Yug firewall access removed on both origins.
+[documented] Return from migration exceptions to baseline isolation verified on both backends.
+[not witnessed] Full pre-project firewall-rule restoration; keep original backups and rehearse locally.
 [needed at evaluation] Faculty-injected troubleshooting and individual viva.
+
+FINAL RESTORED-BASELINE CHECK
+All four app/api queries against the two DNS servers returned 10.7.6.136.
+Both direct origin requests from Mac 1 timed out (curl exit 28).
+Eight normal hostname-based HTTPS requests passed system certificate validation and
+returned A=4/B=4, all HTTP 200. Conditional cache validation returned 304 again.
+Evidence: final-restoration-verification.txt. Actual installed primary DNS, backup DNS,
+active nginx and standby nginx configurations are included in configs/phase2/.
+Remaining evaluation activity: faculty-injected fault, individual viva, and showing any
+original firewall rollback requested by the evaluator. Full pairwise LAN inventory for
+other machines and full original-firewall rollback were not independently witnessed here.

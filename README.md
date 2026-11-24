@@ -1,4 +1,7 @@
 # Private Network Service Platform
+
+> Current Phase 2 addresses, measured results and evidence are in [Section 9](#9-phase-2-harden-recover-and-troubleshoot). Earlier October addresses are historical.
+
 ## Computer Networks Capstone Course Project — Team Baby Shark
 
 ### Core Principle
@@ -444,71 +447,28 @@ The platform underwent deliberate fault injection and resolved real-world lab an
 
 ## 9. Phase 2: Harden, Recover, and Troubleshoot
 
-**Verification status:** The following descriptions are configuration proposals, not proof that Phase 2 has been demonstrated. See [the audited A-F checklist](docs/phase2-plan.md) for remaining work, measurement caveats and required evidence, and [the multiple-PC guide](docs/multiple-pcs.md) for machine roles and Git synchronization.
+The 24 November live lab results are documented in [the measured report](docs/phase2-live-results.txt).
+Current IPs differ from the historical October inventory elsewhere in this document.
 
-### Extension A: Backup DNS Resolver and High Availability
-- **Architecture**: A secondary `dnsmasq` instance is deployed on Mac 4 (`10.7.31.47`) with identical zone records.
-- **Client Configuration**: Clients are configured with dual DNS resolvers:
-  ```bash
-  sudo networksetup -setdnsservers Wi-Fi 10.7.19.196 10.7.31.47
-  ```
-- **Demonstration**: When Mac 1 primary DNS is taken offline (`sudo brew services stop dnsmasq`), clients automatically fall back to Mac 4 without interruption.
+| Node | Current IP | Current role |
+| --- | --- | --- |
+| Mac 1 / Yug | `10.7.23.11` | Primary DNS, client, temporary standby edge |
+| Mac 2 / Ansh | `10.7.6.136` | Active HTTPS edge and load balancer |
+| Mac 3 / Ishita | `10.7.22.88` | Backend A, port 3001 |
+| Mac 4 / Aditya | `10.7.12.137` | Backend B, port 3002, backup DNS |
 
-### Extension B: DNS TTL and Controlled Traffic Cutover
-- **Configuration**: DNS records configured with a 30-second TTL (`local-ttl=30`).
-- **Demonstration**:
-  1. Record updated in `dnsmasq.d/project.conf` to point to a new standby edge IP.
-  2. Immediate client queries continue to receive cached answer.
-  3. Upon TTL expiration (or manual cache flush via `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder`), clients seamlessly transition to the updated address.
+| Extension | Recorded result | Evidence |
+| --- | --- | --- |
+| A: Backup DNS | Primary stopped, fresh backup query captured, three trusted HTTPS responses succeeded, primary restored | `evidence/phase2/a-backup-dns/` |
+| B: TTL and cache flush | Client cache counted down then refreshed after expiry; OS/manual cache behavior measured separately | `evidence/phase2/b-ttl/` |
+| C: Service isolation | Both direct backend connections blocked from Mac 1 while trusted proxy requests worked; migration exceptions removed afterward | `evidence/phase2/c-isolation/`, `evidence/phase2/restoration/` |
+| D: Backend failover | Ansh supplied 36 request records: normal A+B, stopped-A B-only, recovered A+B; nginx retry log included | `evidence/phase2/d-failover/` |
+| E: Controlled edge migration | Both DNS servers switched to Mac 1; cached request reached old edge, fresh requests reached standby B/A/B/A; DNS and isolation baseline restored | `evidence/phase2/e-cutover/`, `evidence/phase2/restoration/` |
+| F: Troubleshooting | Wrong-port rehearsal recorded; actual faculty-injected fault and individual viva remain evaluation activities | `evidence/phase2/f-diagnosis/` |
 
-### Extension C: Service Isolation via macOS `pf` Packet Filter
-- **Objective**: Prevent clients from bypassing the reverse proxy and accessing backend ports 3001 and 3002 directly.
-- **Rule Definition** (`/etc/pf.anchors/cn_isolation` on Mac 3 and Mac 4):
-  ```
-  # Allow traffic to backend ports ONLY from Mac 2 (Edge IP 10.7.18.79)
-  pass in quick on en0 proto tcp from 10.7.18.79 to any port {3001, 3002}
-  block in quick on en0 proto tcp from any to any port {3001, 3002}
-  ```
-- **Demonstration**: Direct connection attempt from client Mac fails with `Operation timed out`, while requests routed through `https://app.team1.test:8443` succeed.
-
-### Extension D: High-Availability Failover and Single Point of Failure (SPOF) Analysis
-- **Nginx Failover Tuning**:
-  ```nginx
-  upstream backend_pool {
-      server 10.7.17.218:3001 max_fails=2 fail_timeout=5s;
-      server 10.7.31.47:3002 max_fails=2 fail_timeout=5s;
-  }
-  ```
-- **SPOF Analysis**: While the backend application layer is fully redundant, Mac 2 (Edge Nginx) remains a Single Point of Failure. In an enterprise production network, this is mitigated by:
-  1. Active-passive edge proxies paired with Virtual Router Redundancy Protocol (VRRP / Keepalived) sharing a Virtual IP (VIP).
-  2. BGP Anycast routing directing traffic to the nearest surviving edge router.
-  3. DNS round-robin across multiple public edge IP addresses.
-
-### Extension E: Controlled Edge Migration (DNS-Based Cutover)
-
-Prepare standby nginx on Mac 3 or Mac 4, verify trusted HTTPS and backend reachability (including firewall permissions), then change project records on both DNS servers. Show old cached answers versus new lookups and recovery after TTL expiry. Restore DNS and firewall configuration after the demo. This extension still requires implementation and evidence; see [the Phase 2 plan](docs/phase2-plan.md).
-
-### Extension F: Systematic Layer-by-Layer Troubleshooting Framework
-When diagnosing any unknown network failure, Team Baby Shark follows a strict deterministic bottom-up protocol audit:
-
-```
-[Layer 1/2]  Check Physical/Link Status   -> ifconfig en0 (status: active, valid IP assigned)
-     |
-     v
-[Layer 3]    Check IP Reachability         -> ping -c 2 <target_ip> (ICMP Echo)
-     |
-     v
-[Layer 7]    Check Name Resolution         -> dig @<dns_ip> app.team1.test +short
-     |
-     v
-[Layer 4]    Check Transport Port / Socket -> nc -zvw3 <target_ip> 8443
-     |
-     v
-[Layer 5/6]  Check TLS Certificate & Cipher -> openssl s_client -connect <target_ip>:8443 -servername app.team1.test
-     |
-     v
-[Layer 7]    Check Application Response    -> curl -v -i https://app.team1.test:8443/api/status
-```
+Installed configuration copies are in [configs/phase2](configs/phase2/README.txt).
+See [START-HERE.txt](START-HERE.txt) for service launch order and demonstration steps.
+No private keys are included. Full original firewall rollback and all other machines' pairwise LAN inventories were not independently witnessed; keep the original backups available.
 
 ---
 

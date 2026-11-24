@@ -1,0 +1,180 @@
+2026-11-24T23:02:59.999172+05:30 - final restored baseline
+$ dig +time=2 +tries=1 +noall +answer @10.7.23.11 app.team1.test
+app.team1.test.		30	IN	A	10.7.6.136
+
+
+Exit: 0
+$ dig +time=2 +tries=1 +noall +answer @10.7.23.11 api.team1.test
+api.team1.test.		30	IN	A	10.7.6.136
+
+
+Exit: 0
+$ dig +time=2 +tries=1 +noall +answer @10.7.12.137 app.team1.test
+app.team1.test.		30	IN	A	10.7.6.136
+
+
+Exit: 0
+$ dig +time=2 +tries=1 +noall +answer @10.7.12.137 api.team1.test
+api.team1.test.		30	IN	A	10.7.6.136
+
+
+Exit: 0
+$ curl --connect-timeout 2 --max-time 4 -sS -i http://10.7.22.88:3001/api/status
+
+curl: (28) Failed to connect to 10.7.22.88 port 3001 after 2006 ms: Timeout was reached
+
+Exit: 28
+$ curl --connect-timeout 2 --max-time 4 -sS -i http://10.7.12.137:3002/api/status
+
+curl: (28) Failed to connect to 10.7.12.137 port 3002 after 2006 ms: Timeout was reached
+
+Exit: 28
+$ curl --max-time 6 -sS -i https://app.team1.test:8443/api/status
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 17:33:02 GMT
+Content-Type: application/json
+Content-Length: 30
+Connection: keep-alive
+Cache-Control: max-age=60
+ETag: "B-v1"
+X-Backend: B
+X-Edge: edge
+
+{"backend":"B","status":"ok"}
+
+Exit: 0
+$ curl --max-time 6 -sS -i https://app.team1.test:8443/api/status
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 17:33:02 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 29
+Connection: keep-alive
+X-Powered-By: Express
+Cache-Control: max-age=60
+ETag: "A-v1"
+X-Backend: A
+X-Edge: edge
+
+{"backend":"A","status":"ok"}
+Exit: 0
+$ curl --max-time 6 -sS -i https://app.team1.test:8443/api/status
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 17:33:02 GMT
+Content-Type: application/json
+Content-Length: 30
+Connection: keep-alive
+Cache-Control: max-age=60
+ETag: "B-v1"
+X-Backend: B
+X-Edge: edge
+
+{"backend":"B","status":"ok"}
+
+Exit: 0
+$ curl --max-time 6 -sS -i https://app.team1.test:8443/api/status
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 17:33:02 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 29
+Connection: keep-alive
+X-Powered-By: Express
+Cache-Control: max-age=60
+ETag: "A-v1"
+X-Backend: A
+X-Edge: edge
+
+{"backend":"A","status":"ok"}
+Exit: 0
+$ curl --max-time 6 -sS -i https://app.team1.test:8443/api/status
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 17:33:02 GMT
+Content-Type: application/json
+Content-Length: 30
+Connection: keep-alive
+Cache-Control: max-age=60
+ETag: "B-v1"
+X-Backend: B
+X-Edge: edge
+
+{"backend":"B","status":"ok"}
+
+Exit: 0
+$ curl --max-time 6 -sS -i https://app.team1.test:8443/api/status
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 17:33:03 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 29
+Connection: keep-alive
+X-Powered-By: Express
+Cache-Control: max-age=60
+ETag: "A-v1"
+X-Backend: A
+X-Edge: edge
+
+{"backend":"A","status":"ok"}
+Exit: 0
+$ curl --max-time 6 -sS -i https://app.team1.test:8443/api/status
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 17:33:03 GMT
+Content-Type: application/json
+Content-Length: 30
+Connection: keep-alive
+Cache-Control: max-age=60
+ETag: "B-v1"
+X-Backend: B
+X-Edge: edge
+
+{"backend":"B","status":"ok"}
+
+Exit: 0
+$ curl --max-time 6 -sS -i https://app.team1.test:8443/api/status
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 17:33:03 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 29
+Connection: keep-alive
+X-Powered-By: Express
+Cache-Control: max-age=60
+ETag: "A-v1"
+X-Backend: A
+X-Edge: edge
+
+{"backend":"A","status":"ok"}
+Exit: 0
+$ curl --max-time 6 -sS -i https://app.team1.test:8443/api/cached
+HTTP/1.1 200 OK
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 17:33:03 GMT
+Content-Type: application/json
+Content-Length: 29
+Connection: keep-alive
+Cache-Control: max-age=60
+ETag: "v1"
+X-Backend: B
+X-Edge: edge
+
+{"data":"cacheable content"}
+
+Exit: 0
+$ curl --max-time 6 -sS -i -H If-None-Match: "v1" https://app.team1.test:8443/api/cached
+HTTP/1.1 304 Not Modified
+Server: nginx/1.30.8
+Date: Tue, 24 Nov 2026 17:33:03 GMT
+Connection: keep-alive
+X-Powered-By: Express
+ETag: "v1"
+Cache-Control: max-age=60
+X-Backend: A
+X-Edge: edge
+
+
+Exit: 0
+Final verification passed. Active edge counts: {'A': 4, 'B': 4}

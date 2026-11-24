@@ -1,94 +1,72 @@
-TEAM BABY SHARK: TWO-HOUR LAB
+TEAM BABY SHARK - VERIFIED 24 NOVEMBER PHASE 2 LAB
 
-These scripts are prepared for macOS. Live four-Mac results are NOT yet verified.
-All four Macs must remain on the same Wi-Fi and awake.
-Unzip, open Terminal, type cd followed by a space, drag this folder into Terminal, press Enter.
-Then run: bash scripts/lab.sh configure
-Each person sees their CURRENT IP. Share it with Yug immediately.
-Enter the same four CURRENT IPs on every machine. Historical defaults may be wrong.
-Yug current IP when prepared: 10.7.23.11.
+Read docs/phase2-live-results.txt for measured results and remaining evidence limits.
+This package contains source, collected configs and real Phase 2 evidence. No private keys.
+Branch: codex/phase2. No remote push was performed.
 
-ANSH / MAC 2
-1. bash scripts/lab.sh configure
-2. bash scripts/lab.sh edge
-3. Leave terminal running. AirDrop .lab/edge-rootCA.pem to Yug and Aditya.
-   Finder: Cmd+Shift+G, paste the project folder path followed by /.lab
-   Send only the named rootCA.pem, never any private key.
-4. In a second Terminal from this folder:
-   curl -i http://MAC3_CURRENT_IP:3001/api/status
-   curl -i http://MAC4_CURRENT_IP:3002/api/status
-5. During failure demo, show .lab/edge/logs/access.log and error.log.
-   Stop nginx only when directed: Ctrl+C in its service terminal.
+CURRENT ROLES
+Yug / Mac 1: 10.7.23.11, primary DNS 53, client, temporary standby nginx 8443.
+Ansh / Mac 2: 10.7.6.136, active nginx HTTPS 8443 and load balancer.
+Ishita / Mac 3: 10.7.22.88, Backend A 3001.
+Aditya / Mac 4: 10.7.12.137, Backend B 3002 and backup DNS 53.
+The final demonstrated standby is Mac 1, not Mac 3.
 
-ISHITA / MAC 3
-1. bash scripts/lab.sh configure
-2. bash scripts/lab.sh backend-a
-3. Leave terminal running. In second Terminal, same project folder:
-   bash scripts/lab.sh standby
-4. AirDrop .lab/standby-rootCA.pem to Yug and Aditya.
-5. AFTER baseline works, in third Terminal:
-   bash scripts/isolation.sh apply 3001
-6. Stop Backend A with Ctrl+C ONLY in its backend terminal for failure demo.
-   Restart: bash scripts/lab.sh backend-a
-7. Restore firewall at end: bash scripts/isolation.sh restore
+EXISTING LIVE SERVICES
+Do not restart working services unnecessarily. Both DNS servers and normal HTTPS have
+been restored to Ansh after the migration test. Origin isolation is enforced again.
 
-ADITYA / MAC 4
-1. bash scripts/lab.sh configure
-2. bash scripts/lab.sh backend-b
-3. Second Terminal, same folder: bash scripts/lab.sh dns
-   Enter administrator password locally. Leave running.
-4. Third Terminal: trust BOTH downloaded CA files:
-   bash scripts/lab.sh trust /actual/path/to/edge-rootCA.pem
-   bash scripts/lab.sh trust /actual/path/to/standby-rootCA.pem
-   Use drag-and-drop into Terminal to insert each downloaded file path.
-5. bash scripts/lab.sh client
-6. bash scripts/lab.sh demo
-7. AFTER baseline works: bash scripts/isolation.sh apply 3002
-8. Restore firewall at end: bash scripts/isolation.sh restore
+FRESH LAB START
+Open Terminal in this folder. Each Mac runs: bash scripts/lab.sh configure
+Verify all four current IPs before accepting the defaults. Keep Macs awake on the same LAN.
+Ishita: bash scripts/lab.sh backend-a
+Aditya: bash scripts/lab.sh backend-b
+Aditya in another terminal: bash scripts/lab.sh dns
+Ansh: bash scripts/lab.sh edge
+Yug: bash scripts/lab.sh dns
+Each service terminal remains open. Allow incoming connections when macOS prompts.
+DNS needs a local administrator password; never share passwords in chat.
+Yug and Aditya import Ansh's public CA using lab.sh trust, then run lab.sh client.
+Never share private keys or rootCA-key.pem. The rootCA.pem file is public.
 
-YUG / MAC 1
-1. bash scripts/lab.sh configure
-2. bash scripts/lab.sh dns
-3. Second Terminal: trust BOTH CA files using the trust commands above.
-4. bash scripts/lab.sh client
-5. bash scripts/lab.sh demo
+BASELINE CHECK
+bash scripts/lab.sh demo
+Inspect saved output in .lab/demo-TIMESTAMP.txt; the script records errors and does not
+itself declare a pass. Use ordinary trusted HTTPS, no curl -k or --resolve in the integrated demo.
 
-TIME PLAN
-00-15: Share current IPs, unzip, configure, start both backends and primary edge.
-15-30: Start both DNS servers, distribute/trust CA, configure clients, verify HTTPS and A+B.
-30-45: Record DNS/TCP/TLS capture, HTTP headers and 304; start standby edge and trust its CA.
-45-60: Stop A; prove B-only success; restart A; prove A+B recovery.
-60-75: Apply backend isolation. From Mac 1 direct backend ports must fail; edge must work.
-75-90: Stop primary DNS with Ctrl+C; flush client cache; prove backup query with capture and HTTPS.
-       Restart primary DNS afterwards.
-90-105: DNS TTL and edge cutover, steps below.
-105-120: Practise injected fault, restore baseline, collect evidence and write results.
-All extensions remain required. This is a suggested schedule, not a guarantee of completion.
+PHASE 2 REHEARSAL
+A: scripts/record-dns-failover.sh on Mac 1 through sudo records stopped-primary fallback
+   and restores primary DNS on exit. Ansh/Aditya services must stay running.
+B: scripts/record-ttl.sh on Mac 1 through sudo records authoritative change, controlled
+   client-cache expiry and manual flush. It restores the primary config and dual DNS.
+C: scripts/backend-firewall-standalone.sh apply on each backend permits only Ansh.
+   Verify blocked direct requests from Yug and successful HTTPS through Ansh.
+   Each owner keeps their original configuration/anchor backup and rehearses restoration.
+D: Stop Backend A only, verify successful B-only responses, restart A and verify A+B.
+E: On Mac 1, bash scripts/lab.sh standby. Trust its .lab/standby-public.crt on clients.
+   Both backend owners temporarily use their firewall helper's migration mode to allow Yug.
+   Start scripts/record-cutover.sh through sudo on Mac 1; it waits for backup DNS.
+   Aditya uses backup-dns-switch.sh standby, preserving his actual config and process paths.
+   The recorder warms old DNS cache, switches primary records, verifies old vs fresh clients,
+   and restores primary. Aditya then runs backup-dns-switch.sh primary.
+   Restore backend policies to permit only Ansh. Recheck both DNS answers and origin blocking.
+F: Practise DNS -> TCP -> TLS -> application diagnosis. The faculty chooses the actual fault
+   during evaluation. A recorded wrong-port rehearsal is in evidence/phase2/f-diagnosis.
 
-DNS TTL / CUTOVER (ON BOTH MAC 1 AND MAC 4)
-Verify standby nginx first; both edge CA certificates trusted; standby can reach origins.
-Warm client DNS while primary edge is selected; start packet capture.
-Run: bash scripts/lab.sh cutover
-Ctrl+C each DNS service and rerun: bash scripts/lab.sh dns
-Direct dig @each-server must return Mac 3. Compare cached client vs fresh DNS query.
-Use fresh curl requests and show X-Edge: standby after expiry; don't flush until TTL behavior is recorded.
-Then demonstrate manual cache flushing separately.
-Mac 1 and Mac 4 each restore with: bash scripts/lab.sh restore-edge
-Ctrl+C and rerun their DNS services. Verify X-Edge: edge after caches expire/flush.
+FINAL DEMONSTRATION
+1. Current topology/IP inventory.
+2. LAN reachability between machines.
+3. Domain resolution through project DNS.
+4. Trusted HTTPS by domain name.
+5. A/B load balancing.
+6. Saved packet capture: DNS, TCP handshake, TLS handshake.
+7. Cache-Control/ETag and 304.
+8. One backend stopped and service continues; restart restores balancing.
+9. Backup DNS, TTL, isolation and controlled DNS edge migration.
+10. Diagnose faculty-injected fault aloud.
+11. Individual viva: everyone understands the full request path.
 
-EVIDENCE / VALIDATION
-Demo logs are in .lab/demo-TIMESTAMP.txt. They record actual results; inspect every error.
-Wireshark client filter: dns || tcp.port == 8443
-A cached success is not backup DNS proof. Capture a fresh query to Mac 4 with Mac 1 DNS stopped.
-DNS TTL does not migrate existing TCP connections.
-Use only trusted HTTPS for final demonstration; no curl -k.
-Firewall script refuses if required parent anchor is missing. Do not force global pf reloads.
-Save rollback proof. Restore original client DNS settings from .lab/original-dns.txt.
-If original settings were automatic: sudo networksetup -setdnsservers Wi-Fi Empty
-
-KNOWN CACHE CORRECTNESS ISSUE IN ORIGINAL CODE
-/api/cached uses ETag v1 on both backends but includes a different backend value in its body.
-Before a rigorous cache demonstration, make cached response bodies identical or use distinct validators.
-The shared cache body is corrected in this prepared package; X-Backend still identifies each origin.
-
-No remote push has been performed. Each teammate should use their own Git identity.
+FILES
+configs/phase2/: installed configs collected from the machines; adapt machine-local paths.
+evidence/phase2/: recorded output, packet captures and teammate failover log.
+docs/phase2-live-results.txt: results, observations and evidence boundaries.
+Do not claim the rehearsal is the actual faculty-injected fault.

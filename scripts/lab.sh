@@ -11,7 +11,7 @@ if [ "$ROLE" = help ]; then
 fi
 if [ "$ROLE" = configure ] || [ ! -f "$LAB/network.env" ]; then
   echo "This Mac current Wi-Fi IP: $(ipconfig getifaddr en0 || true)"
-  echo 'Defaults are historical repo addresses except Mac 1. Confirm/update them.'
+  echo 'Defaults are the confirmed 24 November lab addresses. Confirm/update them before a new session.'
   read -r -p 'Mac 1 / Yug [10.7.23.11]: ' M1; M1=${M1:-10.7.23.11}
   read -r -p 'Mac 2 / Ansh [10.7.6.136]: ' M2; M2=${M2:-10.7.6.136}
   read -r -p 'Mac 3 / Ishita [10.7.22.88]: ' M3; M3=${M3:-10.7.22.88}
@@ -81,14 +81,32 @@ CONF
   ;;
  edge|standby)
   brew list nginx >/dev/null 2>&1 || brew install nginx
-  brew list mkcert >/dev/null 2>&1 || brew install mkcert
+  if [ "$ROLE" = edge ]; then brew list mkcert >/dev/null 2>&1 || brew install mkcert; fi
+  if [ "$ROLE" = standby ] && [ "$(ipconfig getifaddr en0)" != "$M1" ]; then echo "This demo uses Mac 1 as standby; verify network.env"; exit 1; fi
+  MARKER="$ROLE"
+  if [ "$ROLE" = standby ]; then MARKER=standby-mac1; fi
   DIR="$LAB/$ROLE"
   mkdir -p "$DIR/logs" "$DIR/certs"
   if [ ! -f "$DIR/certs/leaf.pem" ]; then
-    mkcert -install
-    mkcert -cert-file "$DIR/certs/leaf.pem" -key-file "$DIR/certs/leaf-key.pem" app.team1.test api.team1.test
+    if [ "$ROLE" = edge ]; then
+      mkcert -install
+      mkcert -cert-file "$DIR/certs/leaf.pem" -key-file "$DIR/certs/leaf-key.pem" app.team1.test api.team1.test
+    else
+      openssl req -x509 -nodes -days 7 -newkey rsa:2048 \
+        -keyout "$DIR/certs/leaf-key.pem" -out "$DIR/certs/leaf.pem" \
+        -subj '/CN=app.team1.test/O=Team Baby Shark Local Standby' \
+        -addext 'subjectAltName=DNS:app.team1.test,DNS:api.team1.test' \
+        -addext 'basicConstraints=critical,CA:FALSE' \
+        -addext 'extendedKeyUsage=serverAuth'
+    fi
   fi
-  cp "$(mkcert -CAROOT)/rootCA.pem" "$LAB/$ROLE-rootCA.pem"
+  if [ "$ROLE" = edge ]; then
+    cp "$(mkcert -CAROOT)/rootCA.pem" "$LAB/edge-rootCA.pem"
+    PUBLIC_CERT="$LAB/edge-rootCA.pem"
+  else
+    cp "$DIR/certs/leaf.pem" "$LAB/standby-public.crt"
+    PUBLIC_CERT="$LAB/standby-public.crt"
+  fi
   cat > "$DIR/nginx.conf" <<CONF
 worker_processes 1;
 pid $DIR/nginx.pid;
@@ -107,7 +125,7 @@ http {
     ssl_certificate $DIR/certs/leaf.pem;
     ssl_certificate_key $DIR/certs/leaf-key.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
-    add_header X-Edge $ROLE always;
+    add_header X-Edge $MARKER always;
     location / {
       proxy_pass http://backend_pool;
       proxy_http_version 1.1;
@@ -124,12 +142,12 @@ http {
 }
 CONF
   nginx -p "$DIR/" -c "$DIR/nginx.conf" -t
-  echo "Send ONLY $LAB/$ROLE-rootCA.pem to every client. Each client must trust both edge roots for migration."
+  echo "Send ONLY $PUBLIC_CERT to every client. Trust this public certificate before the migration demo."
   echo 'Leave this terminal open; Ctrl+C stops this nginx.'
   nginx -p "$DIR/" -c "$DIR/nginx.conf" -g 'daemon off;'
   ;;
  cutover|restore-edge)
-  if [ "$ROLE" = cutover ]; then printf '%s\n' "$M3" > "$LAB/edge-target";
+  if [ "$ROLE" = cutover ]; then printf '%s\n' "$M1" > "$LAB/edge-target";
   else printf '%s\n' "$M2" > "$LAB/edge-target"; fi
   echo 'Now Ctrl+C the lab DNS terminal and rerun: bash scripts/lab.sh dns'
   echo 'Do this on BOTH Mac 1 and Mac 4. No client cache flush until the TTL comparison is recorded.'
