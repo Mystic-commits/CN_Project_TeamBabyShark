@@ -38,7 +38,7 @@ git bundle create CN_Project_TeamBabyShark.bundle --all
 Copy the bundle using AirDrop, USB or an authenticated LAN transfer. On a new PC:
 
 ```sh
-git clone -b codex/phase2-review /path/to/CN_Project_TeamBabyShark.bundle CN_Project_TeamBabyShark
+git clone -b codex/phase2 /path/to/CN_Project_TeamBabyShark.bundle CN_Project_TeamBabyShark
 ```
 
 The bundle's source becomes origin. If you later want the GitHub remote, intentionally change it:
@@ -50,14 +50,14 @@ git remote set-url origin https://github.com/Mystic-commits/CN_Project_TeamBabyS
 For an existing clone, first commit or stash local edits, then fetch the bundle into a separate review branch:
 
 ```sh
-git fetch /path/to/CN_Project_TeamBabyShark.bundle refs/heads/codex/phase2-review:refs/heads/review/phase2-import
+git fetch /path/to/CN_Project_TeamBabyShark.bundle refs/heads/codex/phase2:refs/heads/review/phase2-import
 ```
 
 Inspect that branch before switching or merging. The cleaned branch rewrites the two original commit IDs, so do not casually merge it with old main or pull old main into it. Publishing that cleaned history would need a deliberate coordinated history replacement; no such remote action has been performed.
 
 ## Local history cleanup in this review
 
-The original main and backup/original-history preserve the original two commits. Only codex/phase2-review has normalized author/committer identity and the Cursor co-author trailer removed. Original timestamps and file trees were preserved. New documentation commits use the current time. Removing a trailer locally does not change GitHub's contributor display until remote history is deliberately changed.
+The original main and backup/original-history preserve the original two commits. Only codex/phase2 has normalized author/committer identity and the Cursor co-author trailer removed. Original timestamps and file trees were preserved. New documentation commits use the current time. Removing a trailer locally does not change GitHub's contributor display until remote history is deliberately changed.
 
 Keep node_modules, Python environments, logs, local machine settings and TLS private keys out of Git. Install dependencies independently on each PC. Do not synchronize an active .git directory through a live cloud-sync folder.
 
