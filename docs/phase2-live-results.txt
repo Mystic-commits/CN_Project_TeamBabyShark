@@ -1,0 +1,88 @@
+TEAM BABY SHARK - PHASE 2 LIVE RESULTS
+Date: 24 November 2026 (Asia/Kolkata)
+Branch: codex/phase2. No remote push performed.
+
+CURRENT TOPOLOGY
+Mac 1 / Yug: 10.7.23.11 - primary DNS UDP/TCP 53, client, temporary standby nginx 8443.
+Mac 2 / Ansh: 10.7.6.136 - active nginx 8443, TLS termination, round-robin load balancer.
+Mac 3 / Ishita: 10.7.22.88 - Express Backend A TCP 3001.
+Mac 4 / Aditya: 10.7.12.137 - Flask Backend B TCP 3002, backup DNS UDP/TCP 53, client.
+Current Mac 1 subnet mask is 255.255.224.0 (/19), gateway 10.7.0.1, interface en0.
+Do not reuse the historical October /16 inventory without measuring each machine.
+Normal path: client -> primary or backup DNS -> Ansh HTTPS -> Backend A or B.
+Migration path: client -> DNS -> Yug standby HTTPS -> Backend A or B.
+The standby placement is on Mac 1, rather than the earlier proposed Mac 3.
+
+WHAT CHANGED FROM PHASE 1
+Added independent backup DNS and dual client resolver settings; 30-second local DNS TTL;
+backend ingress isolation; passive upstream failure handling; separate standby edge;
+structured launch/rollback scripts; current address inventory; packet evidence and diagnosis.
+Corrected the shared cached representation so A and B can legitimately use the same ETag v1.
+
+DIRECTLY VERIFIED BASELINE
+Both DNS servers answer app.team1.test -> 10.7.6.136 with TTL 30.
+Normal curl using the hostname passes certificate validation without -k or --resolve.
+Repeated requests alternate A/B; a recorded 10-request check produced 5 A and 5 B.
+/api/cached returns 200 with ETag v1; conditional request returns 304 through nginx.
+Evidence: baseline-verification.txt, baseline-network.txt, baseline-network.pcapng, packet-index.tsv.
+
+EXTENSION A - BACKUP DNS: VERIFIED
+Primary project dnsmasq was stopped, the OS resolver cache flushed, and an explicit query
+to the stopped primary failed. A fresh system-resolver query went to 10.7.12.137 and was
+answered with 10.7.6.136; three domain-based, certificate-validated HTTPS requests returned 200.
+The first fallback request took roughly three seconds: failover is not instantaneous.
+Primary DNS was restored and answered again.
+Learning: name resolution can survive one DNS service failure; cached answers alone are
+not evidence that a backup resolver was used.
+Evidence: dns-failover.txt and dns-failover.pcapng.
+
+EXTENSION B - TTL / CACHE: TEST IN PROGRESS
+Controlled ttl.team1.test experiment uses primary DNS only for this client's experiment;
+normal app.team1.test records remain unchanged. Client dual DNS will be restored on exit.
+See dns-ttl.txt and dns-ttl.pcapng after the experiment completes; report actual old/new
+answers and observed timing rather than assuming the OS obeys exactly 30 seconds.
+
+EXTENSION C - SERVICE ISOLATION: CLIENT/PROXY PATH VERIFIED
+Mac 1 -> Backend A: TCP connection timeout, curl exit 28.
+Mac 1 -> Backend B: TCP connection timeout, curl exit 28.
+Mac 1 -> trusted HTTPS edge: HTTP 200 with X-Backend A and B in recorded checks.
+Aditya supplied pf rules showing the active edge and initial standby candidate Mac 3 allowed.
+Baseline policy should allow only Mac 2; the standalone script normalizes that policy.
+During migration only, explicitly allow Mac 1 as standby; restore Mac-2-only afterwards.
+Rollback scripts retain the previous lab anchor and use pf reference tokens; they never
+flush or reload the global ruleset. Collect each backend's apply and rollback output.
+Learning: reachable origins can be hidden from clients while remaining reachable to a proxy.
+Evidence: backend-a-isolation.txt, backend-b-isolation.txt, plus teammate firewall output.
+
+EXTENSION D - BACKEND FAILOVER: TEAMMATE-REPORTED
+User reports Ansh completed failure and recovery testing. The client baseline verifies both
+backends are healthy now. Obtain the actual stop-A/B-only/restart-A/A+B log before treating
+this extension as documented evidence. Do not substitute normal A/B balancing for failover.
+nginx uses passive failure detection, retries selected failures and later probes recovered
+origins through requests. The active edge remains a single point of failure until migration.
+
+EXTENSION E - EDGE MIGRATION: PREPARED, NOT YET VERIFIED
+Standby nginx is running on Mac 1 with SANs for app.team1.test and api.team1.test.
+A direct preparation check used --resolve plus trusted certificate validation and returned
+200 with X-Edge standby-mac1. This is a preparation check, not proof of DNS cutover.
+Backend isolation must temporarily allow Mac 1; both DNS servers must then point app/api
+to Mac 1. Capture old cache vs new server answers, fresh hostname requests to standby,
+and restore DNS plus baseline firewall rules after the demonstration.
+
+EXTENSION F - TROUBLESHOOTING: REHEARSAL VERIFIED
+A deliberately wrong destination port 9443 failed while DNS was correct, 8443 accepted TCP,
+and certificate-validated HTTPS on 8443 returned 200. Fault isolated to the destination
+port/service layer. This was a controlled rehearsal, not the actual faculty-injected fault.
+During evaluation: DNS -> TCP -> TLS -> application, explaining the findings aloud.
+Evidence: troubleshooting-rehearsal.txt.
+
+FINAL HANDOFF CHECKLIST
+[verified] Current local IP and gateway; obtain masks/interfaces from all other machines.
+[verified] DNS, HTTPS, A/B and cache evidence.
+[verified] Backup DNS failure plus recovery.
+[in progress] TTL expiry and manual flush evidence.
+[verified] Both backend ports blocked from Mac 1 while edge serves requests.
+[needed] Ansh's backend stop/restart failure evidence.
+[needed] Both DNS records switched to standby and restored; firewall exception restored.
+[needed] Each backend's firewall rollback evidence.
+[needed at evaluation] Faculty-injected troubleshooting and individual viva.

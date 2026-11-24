@@ -12,6 +12,11 @@ PIDS=$(pgrep -x dnsmasq || true)
 PID=$PIDS
 COMMAND=$(ps -p "$PID" -o command=)
 case "$COMMAND" in *--conf-file=*) CFG=${COMMAND#*--conf-file=}; CFG=${CFG%% --*};; *) echo 'Cannot identify explicit project config; no changes'; exit 1;; esac
+if [[ "$CFG" != /* ]]; then
+ CWD=$(lsof -a -p "$PID" -d cwd -Fn | sed -n 's/^n//p' | head -1)
+ [ -n "$CWD" ] || { echo 'Could not find dnsmasq working directory'; exit 1; }
+ CFG="$CWD/$CFG"
+fi
 [ -f "$CFG" ] || { echo "Config not found: $CFG"; exit 1; }
 grep -F 'address=/app.team1.test/' "$CFG" >/dev/null || { echo 'App record is not in this config; no changes'; exit 1; }
 [ -f "$CFG.before-phase2-cutover" ] || cp "$CFG" "$CFG.before-phase2-cutover"
