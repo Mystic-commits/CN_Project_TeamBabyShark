@@ -126,3 +126,9 @@ active nginx and standby nginx configurations are included in configs/phase2/.
 Remaining evaluation activity: faculty-injected fault, individual viva, and showing any
 original firewall rollback requested by the evaluator. Full pairwise LAN inventory for
 other machines and full original-firewall rollback were not independently witnessed here.
+
+FINAL RULE AUDIT NOTE
+Mac 1 blocking is verified on both backends. Ishita supplied final rules allowing only Ansh.
+Aditya previously allowed Mac 3 as another standby candidate; final removal of that extra
+allowance is awaiting his rules dump. Strict Mac-2-only policy cannot be asserted from
+a Mac-1-only connectivity test. Remove obsolete standby allowances after migration.
